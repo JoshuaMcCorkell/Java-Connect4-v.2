@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class Connect4 implements ConnectGame {
-    //Constants
+    
     private static final int ROWS = 6;
     private static final int COLUMNS = 7;
     private static final int TOWIN = 4;

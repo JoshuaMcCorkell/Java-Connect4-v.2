@@ -6,7 +6,7 @@ import java.util.LinkedList;
 /**
  * <h4>GameBoard</h4>
  * <p>This class essentially contains a ConnectGame GameBoard, which is a two dimensional array containing BLANK, RED, 
- * and YELLOW values (which are 0, 1, and 2 respectively).</p>
+ * and YELLOW values (which are 0, 1, and 2 respectively), and the methods associated with core game logic and rules.</p>
  */
 public class GameBoard {
     // Disk Constants
@@ -149,7 +149,7 @@ public class GameBoard {
      * @throws ArrayIndexOutOfBoundsException  if column is empty
      */
     public int popDisk(int column) {
-        int disk = data[column][nextDisk[column]-1];
+        final int disk = data[column][nextDisk[column]-1];
         data[column][nextDisk[column]-1] = BLANK;
         nextDisk[column]--;
         return disk;
@@ -162,7 +162,7 @@ public class GameBoard {
      * @throws ArrayIndexOutOfBoundsException  if column is empty
      */
     public int popDisk(Play play) {
-        int disk = data[play.column][nextDisk[play.column]-1];
+        final int disk = data[play.column][nextDisk[play.column]-1];
         data[play.column][nextDisk[play.column]-1] = BLANK;
         nextDisk[play.column]--;
         return disk;
@@ -218,8 +218,8 @@ public class GameBoard {
      */
     private int checkLines(int startColumn, int columnAmount, int startRow, int rowAmount, int columnStep, int rowStep, int winAmount) {
         int n; // This variable basically serves as a 'flag' for which disks are in the potential winning lines.
-        int redWin = 1;
-        int yellowWin = (int) Math.ceil(Math.pow(YELLOW, winAmount) - 0.1); // subtract 0.1 to make sure float inaccuracy isn't a problem.
+        final int redWin = 1;
+        final int yellowWin = (int) Math.ceil(Math.pow(YELLOW, winAmount) - 0.1); // subtract 0.1 to make sure float inaccuracy isn't a problem.
         
         for (int i = startColumn; i < startColumn + columnAmount; i++) { // Loops through the columns.
             for (int j = startRow; j < startRow + rowAmount; j++) {  // Loops through the rows
