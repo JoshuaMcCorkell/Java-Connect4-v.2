@@ -1,10 +1,14 @@
 package connectgame;
 
+import java.util.LinkedList;
+import java.util.Random;
+
 public class Connect4 implements ConnectGame {
     //Constants
     private static final int ROWS = 6;
     private static final int COLUMNS = 7;
     private static final int TOWIN = 4;
+
     private static final int BLANK = GameBoard.BLANK;
     private static final int RED = GameBoard.RED;
     private static final int YELLOW = GameBoard.YELLOW;
@@ -12,72 +16,90 @@ public class Connect4 implements ConnectGame {
     private GameBoard current;
     private int currentTurn;
     private int winner;
+    private LinkedList<Play> playStack;
+    private Random rn = new Random();
 
+    /**
+     * Constructs an empty Connect4 game object with RED (1) to start, and an empty playStack.
+     */
     public Connect4() {
-        current = new GameBoard(COLUMNS, ROWS);
+        current = new GameBoard(COLUMNS, ROWS, TOWIN);
         currentTurn = RED;
         winner = 0;
+        playStack = new LinkedList<>();
     }
 
-    @Override
     public void play(int column) {
-        // TODO Auto-generated method stub
-        
+        if (column >= 0 && column < COLUMNS && current.getNextDiskIndices()[column] < ROWS) {
+            current.putDisk(currentTurn, column);
+            playStack.push(new Play(currentTurn, column));
+            winner = current.checkWin();
+            currentTurn = (currentTurn == RED)? YELLOW : RED;
+        } else {
+            throw new IndexOutOfBoundsException("An Illegal Move was played. Column given: " + column + "  Total columns: " + COLUMNS);
+        }
     }
 
-    @Override
     public boolean safePlay(int column) {
-        // TODO Auto-generated method stub
-        return false;
+        if (column >= 0 && column < COLUMNS && current.getNextDiskIndices()[column] < ROWS) {
+            current.putDisk(currentTurn, column);
+            playStack.push(new Play(currentTurn, column));
+            winner = current.checkWin();
+            currentTurn = (currentTurn == RED)? YELLOW : RED;
+            return true;
+        } else {
+            return false;
+        }
     }
     
-    @Override
     public boolean undoLast() {
-        // TODO Auto-generated method stub
-        return false;
+        if (playStack.size() > 0) {
+            current.popDisk(playStack.pop());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public LinkedList<Play> getPlayStack() {
+        return playStack;
+    }
+
+    public Play getLast() {
+        return playStack.peek();
     }
     
-    @Override
     public int currentTurn() {
         return currentTurn;
     }
 
-    @Override
     public int getWinner() {
         return winner;
     }
 
-    @Override
     public GameBoard getGameBoard() {
         return current;
     }
 
-    @Override
     public int columns() {
         return COLUMNS;
     }
 
-    @Override
     public int rows() {
         return ROWS;
     }
 
-    @Override
     public int toWin() {
         return TOWIN;
     }
 
-    @Override
     public void playRandom() {
-        // TODO Auto-generated method stub
-        
+        int[] legalPlays = current.getLegal();
+        play(legalPlays[rn.nextInt(legalPlays.length)]);
     }
 
-    @Override
     public void playComputer() {
         // TODO Auto-generated method stub
         
-    }
-
-    
+    } 
 }

@@ -1,29 +1,43 @@
 package connectgame;
 
-interface ConnectGame {
+import java.util.LinkedList;
+
+public interface ConnectGame {
     /**
      * Plays a disk (based on whose turn it is) into the column specified.
      * If an error occurs due to an illegal move, this method will <strong>not</strong> block the error.
-     * This method should switch the turn to the other player if successful.
+     * <p>This method will switch the turn to the other player if successful.
+     * <p>This method will update the winner if needed.
      * @param column  must be an column in the current GameBoard (>= 0 && <= columns).
      */
     public void play(int column);
 
     /**
      * Plays a disk (based on whose turn it is) into the column specified. 
-     * If an error occurs due to an illegal move, this method ignores the error and returns <code>false</code>.
-     * This method should switch the turn to the other player if successful.
+     * If an error occurs due to an illegal move, this method ignores the error and returns {@code false}.
+     * <p>This method will switch the turn to the other player if successful.
+     * <p>This method will update the winner if needed.
      * @param column  must be an column in the current GameBoard (>= 0 && <= columns).
-     * @return  <code>true</code> if successful, otherwise <code>false</code>.
+     * @return  {@code true} if successful, otherwise {@code false}.
      */
     public boolean safePlay(int column);
 
     /**
-     * Undoes the most recent play. Should be able to undo all the way until the start of the game, unless the game 
+     * Undoes the most recent play. Will be able to undo all the way until the start of the game, unless the game 
      * was initialized from a custom position, in which case it will stop at that position. 
-     * @return <code>true</code> if successful, <code>false</code> if there are no more plays to undo.
+     * @return {@code true} if successful, {@code false} if there are no more plays to undo.
      */
     public boolean undoLast();
+
+    /**
+     * Returns the current play stack.
+     */
+    public LinkedList<Play> getPlayStack();
+
+    /**
+     * Returns the most recent Play, null if none.
+     */
+    public Play getLast();
 
     /**
      * Returns the disk (int) whose turn it currently is.
@@ -63,7 +77,7 @@ interface ConnectGame {
     public void playRandom();
 
     /**
-     * Plays the disk whose turn it currently is to a column as decided (preferably) by an algorithm.
+     * Plays the disk whose turn it currently is to a column as decided by an algorithm.
      */
     public void playComputer();
 }
