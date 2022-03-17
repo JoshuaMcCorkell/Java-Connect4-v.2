@@ -1,4 +1,4 @@
-package connectgame;
+package connectgame.engine;
 
 /**
  * A Wrapper class for ConnectGame 'Plays'.

@@ -1,4 +1,5 @@
-import connectgame.*;
+import connectgame.engine.Connect4;
+import connectgame.engine.ConnectGame;
 
 public class Main{
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package connectgame;
+package connectgame.engine;
 
 import java.util.Arrays;
 import java.util.LinkedList;
