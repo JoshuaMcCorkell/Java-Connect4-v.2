@@ -1,5 +1,6 @@
 package connectgame;
 
+import connectgame.ConnectGameUI.GameMode;
 import connectgame.engine.*;
 
 import java.awt.event.ActionEvent;
@@ -7,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
+import java.awt.Font;
 
 import javax.swing.*;
 
@@ -21,6 +23,8 @@ public class GUI extends MouseAdapter {
         new ImageIcon("images/Yellow.png")
     };
 
+    private static final String[] PLAYER = {"Error", "Red", "Yellow"};
+
     private ConnectGameUI ui;
     private Click currentClickThread;
 
@@ -31,14 +35,14 @@ public class GUI extends MouseAdapter {
     private JLabel[][] board;
     
     /**
-     * Creates a ConnectGame GUI with all settings default:
+     * Creates a ConnectGameGUI with all settings default:
      * <ul>
      * <li>ConnectGame: Connect4
      * <li>Game Mode: Player v Player
      */
     public GUI() {
         frame = new JFrame();
-        ui = new ConnectGameUI(ConnectGameUI.GameMode.PLAYER_V_RANDOM, GameBoard.YELLOW);
+        ui = new ConnectGameUI();
         init();
     }
 
@@ -54,16 +58,17 @@ public class GUI extends MouseAdapter {
         mainPanel.setLayout(null);
 
         title = new JLabel();
-        title.setText("<html><h1>Java Connect 4");
-        title.setBounds(10,5,200,30);
+        title.setText("Java Connect " + ui.getGame().toWin());
+        title.setFont(new Font("Arial Bold", Font.PLAIN, 40));
+        title.setBounds(10,15,300,30);
 
         mainPanel.add(title);
-        
+
         initBoard();
         updateBoard();
 
         frame.setSize(width, height);
-        frame.setTitle("Java Connect 4");
+        frame.setTitle("Java Connect " + ui.getGame().toWin());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(mainPanel, BorderLayout.CENTER);
     }
@@ -78,7 +83,7 @@ public class GUI extends MouseAdapter {
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
                 board[i][j] = new JLabel();
-                board[i][j].setBounds(i * DISK_SIZE, (rows - 1) * DISK_SIZE - (j - 1) * DISK_SIZE, DISK_SIZE, DISK_SIZE);
+                board[i][j].setBounds(i * DISK_SIZE,((rows) * DISK_SIZE - (j) * DISK_SIZE) + 15, DISK_SIZE, DISK_SIZE);
                 mainPanel.add(board[i][j]);
             }
         }
@@ -104,10 +109,70 @@ public class GUI extends MouseAdapter {
     }
 
     /**
+     * Resets ConnectGameGUI with all settings default:
+     * <ul>
+     * <li>ConnectGame: Connect4
+     * <li>Game Mode: Player v Player
+     */
+    public void newGame() {
+        ui = new ConnectGameUI();
+        init();
+    }
+
+    /**
      * Updates the GUI.
      */
     public void updateGUI() {
         updateBoard();
+    }
+
+    /**
+     * This returns a string that can be used anywhere that notifies the user that the game has ended. 
+     * @return  A string notifying the user that the game has ended, and any relevant information.
+     */
+    private String getEndGameText() {
+        switch (ui.getMode()) {
+            case PLAYER_V_PLAYER:
+                if (ui.getWinner() != 3) {
+                    return ui.getGame().toWin() + " in a row! " + PLAYER[ui.getWinner()] + " has won!";
+                } else {
+                    return "The game ended in a draw. So-so...";
+                }
+
+            case PLAYER_V_RANDOM: case PLAYER_V_COMPUTER:
+                if (ui.getWinner() == ui.getPlayerDisk()) {
+                    return ui.getGame().toWin() + " in a row! You win!";
+                } else {
+                    return "Better luck next time! The almighty computer got " + ui.getGame().toWin() + " in a row. You lost...";
+                }
+            default:
+                return "An Error ocurred and no message could be displayed. Method: getEndGameText()";
+        }
+    }
+
+    /**
+     * This method does any necessary checks and actions that need to be completed after a move is played.
+     */
+    private void movePlayed() {
+        if (ui.getWinner() != 0) {
+            final String[] options = {"OK", "New Game", "Exit"};
+            getEndGameText();
+            int input = JOptionPane.showOptionDialog(
+                frame,
+                getEndGameText(),
+                "Game Over",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                DISK_ICONS[ui.getWinner()],
+                options,
+                options[1]
+            );
+            switch (input) {
+                case 0: break;
+                case 1: newGame(); break;
+                case 2: System.exit(0); break;
+            }
+        }
     }
 
     @Override
@@ -138,8 +203,12 @@ public class GUI extends MouseAdapter {
 
         @Override 
         public void run() {
-            ui.mousePressed(mouseEvent);
+            ui.playerMousePressed(mouseEvent);
             updateGUI();
+            movePlayed(); // TODO: make this break or return if something happens during the movePlayed... may need to refactor.
+            ui.computerTurn(); // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+            updateGUI();
+            movePlayed();
         }
     }
 }

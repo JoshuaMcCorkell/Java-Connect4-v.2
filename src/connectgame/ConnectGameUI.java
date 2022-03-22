@@ -114,6 +114,20 @@ public class ConnectGameUI {
     }
 
     /**
+     * Returns the winner of the current game. (RED or YELLOW (1 or 2), 3 if the game ended in a draw, 0 if game is ongoing.)
+     */
+    public int getWinner() {
+        return game.getWinner();
+    }
+
+    /**
+     * Returns the mode of this ConnectGameUI.
+     */
+    public GameMode getMode() {
+        return currentMode;
+    }
+    
+    /**
      * Use this method to set the size of the disks (Spaces) on the gameboard. 
      * This property is by default set to 50.
      * @param spaceSize  The new space size. Must be higher than 0.
@@ -142,18 +156,27 @@ public class ConnectGameUI {
     }
     
     /**
-     * This is an event handler for a MouseEvent from a GUI using this ConnectGameUI. 
-     * It should preferably be run in a separate thread. 
-     * @param mouseEvent
+     * This is an event handler for a MouseEvent from a GUI using this ConnectGameUI.
+     * All it does is play a move based on the current click, if legal and it is the player's turn. 
+     * Should preferably be run in a separate thread. 
+     * @param mouseEvent  The mouse event. The only properties used are the X and Y values.
      */
-    public void mousePressed(MouseEvent mouseEvent) {
-        if (isPlayersTurn()) { // If it is the player's turn, play their move.
+    public void playerMousePressed(MouseEvent mouseEvent) {
+        if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
             final int playColumn = mouseEvent.getX() / defaultSpaceSize;
             if (playColumn < gameColumns()) {
                 game.safePlay(playColumn);
             }
         }
-        if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn()) { // If it is now the computer's turn, play their move. 
+    }
+
+    /**
+     * Plays the computer's move IF legal andg it is the computer's turn.
+     * Should preferably be run in a separate thread.
+     */
+    public void computerTurn() {
+        if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) { 
+            // If it is now the computer's turn and the game is not over, play their move. 
             playAuto();
         }
     }

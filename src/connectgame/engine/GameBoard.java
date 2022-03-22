@@ -189,7 +189,7 @@ public class GameBoard {
     }
     
     /**
-     * <h5>This method checks all the designated potential winning lines, and returns RED or YELLOW (1 or 2) if any of them are winning (consecutive disks of either colour.)
+     * <p>This method checks all the designated potential winning lines, and returns RED or YELLOW (1 or 2) if any of them are winning (consecutive disks of either colour.)
      * <p>This method loops through the columns and rows designated by the parameters. Each pair of (column, row) will be a space on the GameBoard. 
      * This space will be the <em>start</em> of a potential winning line. Each potential winning line will have a length of {@code winAmount} 
      * and will be going in the direction designated by the {@code columnStep} and {@code rowStep} parameters. The return value is the Disk (int) of the winner, 
