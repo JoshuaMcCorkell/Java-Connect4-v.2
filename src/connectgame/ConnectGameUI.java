@@ -24,6 +24,8 @@ public class ConnectGameUI {
     private ConnectGame game;
     private int playerDisk;
     private GameMode currentMode;
+
+    private boolean isDone = false;
     
     /**
      * Constructs a new ConnectGameUI object with a new Connect4 game, and the mode player v player.
@@ -127,6 +129,20 @@ public class ConnectGameUI {
         return currentMode;
     }
     
+    /**
+     * Sets the isDone boolean to true.
+     */
+    public void finish() {
+        isDone = true;
+    }
+
+    /**
+     * Returns true if finish() has been called on this ConnectGameUI
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
     /**
      * Use this method to set the size of the disks (Spaces) on the gameboard. 
      * This property is by default set to 50.
