@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 
 import javax.swing.*;
 
@@ -41,21 +43,21 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
 
     private ConnectGameUI ui;
     private Screen currentScreen;
-    private Click currentClickThread;
+    private ComputerMove computerMoveThread;
     private int currentWidth;
     private int currentHeight;
 
     //Components
     private JFrame frame;
     private JPanel[] panels;
-
     //Game Screen
     private JLabel gameTitle;
     private JLabel[][] board;
-
     //Start Screen
     private JLabel startTitle;
     private JButton startButton;
+    //New Game Screen
+    private JLabel newGameTitle;
     
     /**
      * Creates a ConnectGameGUI with all settings default:
@@ -80,25 +82,26 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
     /**
      * Initializes the GUI.
      */
-    private void init() {
-        final int currentWidth = (ui.gameColumns() + 6) * DISK_SIZE;
-        final int currentHeight = (ui.gameColumns() + 3) * DISK_SIZE;
+    private synchronized void init() {
+        currentWidth = (ui.gameColumns() + 6) * DISK_SIZE;
+        currentHeight = (ui.gameColumns() + 3) * DISK_SIZE;
 
         panels = new JPanel[3];
         initGameScreen();
         initStartScreen();
         initNewGameScreen();
-        setCurrentScreen(Screen.GAME_SCREEN);
-
+        
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle("Java Connect " + ui.getGame().toWin());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        setCurrentScreen(Screen.START_SCREEN);
     }
 
     /**
      * Initializes the Game Screen.
      */
-    private void initGameScreen() {
+    private synchronized void initGameScreen() {
         final int panelNo = Screen.GAME_SCREEN.panelArrayPosition();
         panels[panelNo] = new JPanel();
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
@@ -117,42 +120,68 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
     /**
      * Initializes the Start Screen.
      */
-    private void initStartScreen() {
+    private synchronized void initStartScreen() {
         final int panelNo = Screen.START_SCREEN.panelArrayPosition();
         panels[panelNo] = new JPanel();
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
         startTitle = new JLabel();
-        startTitle.setText("Java Connect " + ui.getGame().toWin());
-        startTitle.setFont(new Font("Arial Bold", Font.PLAIN, 40));
-        startTitle.setBounds(10,15,300,30);
+        startTitle.setText("Connect " + ui.getGame().toWin());
+        startTitle.setFont(new Font("Arial Bold", Font.PLAIN, 60));
+        startTitle.setBounds((currentWidth/2) - 160,(currentHeight/2) - 80,300,50);
+
+        startButton = new JButton();
+        startButton.setText("Play");
+        startButton.setFont(new Font("Arial Bold", Font.PLAIN, 30));
+        startButton.setBounds((currentWidth/2) - 110,(currentHeight/2) + 10,200,40);
+        startButton.addActionListener(new ActionListener() {
+            @Override 
+            public void actionPerformed(ActionEvent e) {
+                setCurrentScreen(Screen.GAME_SCREEN);
+            }
+        });
+
         panels[panelNo].add(startTitle);
+        panels[panelNo].add(startButton);
     }
 
     /**
      * Initializes the New Game options Screen.
      */
-    private void initNewGameScreen() {
-        panels[Screen.NEW_GAME_SCREEN.panelArrayPosition()] = new JPanel();
+    private synchronized void initNewGameScreen() {
+        final int panelNo = Screen.NEW_GAME_SCREEN.panelArrayPosition();
+        panels[panelNo] = new JPanel();
+        panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
+        panels[panelNo].setLayout(null);
+        newGameTitle = new JLabel();
+        newGameTitle.setText("Java Connect " + ui.getGame().toWin() + " New Game");
+        newGameTitle.setFont(new Font("Arial Bold", Font.PLAIN, 37));
+        newGameTitle.setBounds(10,15,600,30);
+
+        panels[panelNo].add(newGameTitle);
     }
 
     /**
-     * Sets the given screen to the current screen, hiding other screens.
-     * @param screen
+     * Sets the given screen to the current screen, removing other screens(panels) from the frame.
+     * Note: This kills the current ComputerMove Thread.
+     * @param screen  The screen to set.
      */
-    private void setCurrentScreen(Screen screen) {
+    private synchronized void setCurrentScreen(Screen newScreen) {
         if (currentScreen != null) {
             frame.remove(panels[currentScreen.panelArrayPosition()]);
         }
-        frame.add(panels[screen.panelArrayPosition()]);
-        currentScreen = screen;
+        frame.add(panels[newScreen.panelArrayPosition()]);
+        currentScreen = newScreen;
+        
+        frame.revalidate();
+        frame.repaint();
     }
 
     /**
      * Initialize the board as an array of JLabels with ImageIcons, and add them to the mainPanel.
      */
-    private void initBoard() {
+    private synchronized void initBoard() {
         final int columns = ui.gameColumns();
         final int rows = ui.gameRows();
         board = new JLabel[ui.gameColumns()][ui.gameRows()];
@@ -168,7 +197,7 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
     /**
      * Updates the board to reflect the current GameBoard.
      */
-    private void updateBoard() {
+    private synchronized void updateBoard() {
         for (int i = 0; i < ui.gameColumns(); i++) {
             for (int j = 0; j < ui.gameRows(); j++) {
                 board[i][j].setIcon(DISK_ICONS[ui.getGameBoard().get(i, j)]);
@@ -179,7 +208,7 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
     /**
      * Show and start the GUI.
      */
-    public void start() {
+    public synchronized void start() {
         frame.addMouseListener(this);
         frame.setVisible(true);
     }
@@ -190,14 +219,14 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
      * <li>ConnectGame: Connect4
      * <li>Game Mode: Player v Player
      */
-    public void newGame() {
+    public synchronized void newGame() {
         setCurrentScreen(Screen.NEW_GAME_SCREEN);
     }
 
     /**
      * Updates the GUI.
      */
-    public void updateGUI() {
+    public synchronized void updateGUI() {
         updateBoard();
     }
 
@@ -227,8 +256,11 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
 
     /**
      * This method does any necessary checks and actions that need to be completed after a move is played.
+     * @return 1 if the game has ended and no action necessary,
+     *         2 if a new game has started
+     *         0 if no action was taken. 
      */
-    private int movePlayed() {
+    private synchronized int movePlayed() {
         if (ui.getWinner() != 0 && !ui.isDone()) {
             ui.finish();
             final String[] options = {"OK", "New Game", "Exit"};
@@ -256,11 +288,17 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
     public void mousePressed(MouseEvent mouseEvent) {
         if (currentScreen == Screen.GAME_SCREEN) {
             // This will send a new mouseEvent to the UI, unless it is already handling one. 
-            if (currentClickThread != null && currentClickThread.isAlive()) {
+            if (computerMoveThread != null && computerMoveThread.isAlive()) {
                 return;
             }
-            currentClickThread = new Click(mouseEvent);
-            currentClickThread.start();
+            ui.playerMousePressed(mouseEvent);
+            updateGUI();
+            int action = movePlayed();
+            if (action == 0) {
+                computerMoveThread = new ComputerMove();
+                computerMoveThread.start();
+            }
+            movePlayed();
         }
     }
 
@@ -268,27 +306,15 @@ public class GUI extends MouseAdapter { //TODO make the thing switch screens pro
      * The purpose of this private class is to be able to have the UI handling click events in a separate thread 
      * to avoid unresponsiveness when calculating the computer move. 
      */
-    private class Click extends Thread {
+    private class ComputerMove extends Thread {
 
-        private MouseEvent mouseEvent;
-
-        /**
-         * Creates a new Click thread with a MouseEvent object.
-         * @param mouseEvent
-         */
-        private Click(MouseEvent mouseEvent) {
-            this.mouseEvent = mouseEvent;
-        }
+        private boolean killed = false;
 
         @Override 
         public void run() {
-            ui.playerMousePressed(mouseEvent);
-            updateGUI();
-            int action = movePlayed();
-            if (action == 0) {
-                ui.computerTurn(); // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+            ui.computerTurn(); // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+            if (!killed) {
                 updateGUI();
-                movePlayed();
             }
         }
     }
