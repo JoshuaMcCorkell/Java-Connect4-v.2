@@ -174,7 +174,6 @@ public class ConnectGameUI {
     /**
      * This is an event handler for a MouseEvent from a GUI using this ConnectGameUI.
      * All it does is play a move based on the current click, if legal and it is the player's turn. 
-     * Should preferably be run in a separate thread. 
      * @param mouseEvent  The mouse event. The only properties used are the X and Y values.
      */
     public void playerMousePressed(MouseEvent mouseEvent) {
