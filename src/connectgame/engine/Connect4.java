@@ -55,6 +55,7 @@ public class Connect4 implements ConnectGame {
     public boolean undoLast() {
         if (playStack.size() > 0) {
             current.popDisk(playStack.pop());
+            currentTurn = (currentTurn == RED)? YELLOW : RED;
             return true;
         } else {
             return false;
@@ -100,6 +101,7 @@ public class Connect4 implements ConnectGame {
 
     public void playComputer() {
         // TODO Auto-generated method stub
+        // MAKE SURE this thing is thread safe and able to be interrupted by the undo button etc.
         
     } 
 }

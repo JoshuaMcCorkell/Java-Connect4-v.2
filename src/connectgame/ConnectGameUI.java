@@ -45,10 +45,6 @@ public class ConnectGameUI {
         this.game = new Connect4();
         this.currentMode = mode;
         this.playerDisk = playerDisk;
-        if (!isPlayersTurn()) {
-            Thread computerMove = new ComputerMove();
-            computerMove.start();
-        }
     }
 
     /**
@@ -61,10 +57,6 @@ public class ConnectGameUI {
         this.game = game;
         this.currentMode = mode;
         this.playerDisk = playerDisk;
-        if (!isPlayersTurn()) {
-            Thread computerMove = new ComputerMove();
-            computerMove.start();
-        }
     }
 
     /**
@@ -158,13 +150,26 @@ public class ConnectGameUI {
     }
     
     /**
+     * Undoes the last move of the game.
+     */
+    public void undoLast() {
+        game.undoLast();
+    }
+
+    /**
      * Plays a random or computer move based on the current mode. 
+     * @throws InterruptedException
      */
     public void playAuto() {
         if (game.getWinner() == 3) {
             return;
         }
         if (currentMode == GameMode.PLAYER_V_RANDOM) {
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                return;
+            }
             game.playRandom();
         } else if (currentMode == GameMode.PLAYER_V_COMPUTER) {
             game.playComputer();
@@ -178,7 +183,7 @@ public class ConnectGameUI {
      */
     public void playerMousePressed(MouseEvent mouseEvent) {
         if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
-            final int playColumn = mouseEvent.getX() / defaultSpaceSize;
+            final int playColumn = (mouseEvent.getX() - 10) / defaultSpaceSize;
             if (playColumn < gameColumns()) {
                 game.safePlay(playColumn);
             }
@@ -187,21 +192,11 @@ public class ConnectGameUI {
 
     /**
      * Plays the computer's move IF legal andg it is the computer's turn.
-     * Should preferably be run in a separate thread.
+     * Should be run in a separate thread.
      */
     public void computerTurn() {
         if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) { 
             // If it is now the computer's turn and the game is not over, play their move. 
-            playAuto();
-        }
-    }
-
-    /**
-     * This is just so the computer move can be played at the start of the game in another thread. 
-     */
-    private class ComputerMove extends Thread {
-        @Override 
-        public void run() {
             playAuto();
         }
     }
