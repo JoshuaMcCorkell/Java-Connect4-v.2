@@ -288,7 +288,7 @@ public class GameBoard {
     public int[] getLegal() {
         LinkedList<Integer> legalPlays = new LinkedList<>();
         
-        for (int i = 0; i < sortedLegalOrder.length; i++) {
+        for (int i : sortedLegalOrder) {
             if (nextDisk[i] < rows) {
                 legalPlays.add(i);
             }

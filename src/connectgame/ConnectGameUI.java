@@ -161,6 +161,7 @@ public class ConnectGameUI {
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return;
             }
             game.playRandom();

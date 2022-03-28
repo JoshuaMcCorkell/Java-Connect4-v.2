@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 
-public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit in the turnlabel. 
+public class GUI extends MouseAdapter {
 
     public enum Screen {
         GAME_SCREEN(0),
@@ -294,6 +294,58 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
     }
 
     /**
+     * Updates the fields, assuming the game in progress.
+     */
+    private synchronized void updateFieldsMidGame() {
+        if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
+            if (ui.getGame().currentTurn() == 1) {
+                turnLabel.setText("Red's Turn");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.RED]);
+            } else {
+                turnLabel.setText("Yellow's Turn");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.YELLOW]);
+            }
+        } else {
+            if (ui.isPlayersTurn()) {
+                turnLabel.setText("Your Turn...");
+                turnLabel.setForeground(PLAYER_COLORS[ui.getPlayerDisk()]);
+            } else {
+                turnLabel.setText("Thinking...");
+                turnLabel.setForeground(PLAYER_COLORS[3 - ui.getPlayerDisk()]);
+            }
+        }
+    }
+
+    /**
+     * Updates the fields, assuming the game has ended.
+     */
+    private synchronized void updateFieldsPostGame() {
+        if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
+            if (ui.getWinner() == 1) {
+                turnLabel.setText("Red Wins!");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.RED]);
+            } else if (ui.getWinner() == 2) {
+                turnLabel.setText("Yellow Wins!");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.YELLOW]);
+            } else {
+                turnLabel.setText("Draw!");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.BLANK]);
+            }
+        } else {
+            if (ui.getPlayerDisk() == ui.getWinner()) {
+                turnLabel.setText("You Win!!");
+                turnLabel.setForeground(PLAYER_COLORS[ui.getPlayerDisk()]);
+            } else if (ui.getWinner() == 3) {
+                turnLabel.setText("Draw!");
+                turnLabel.setForeground(PLAYER_COLORS[GameBoard.BLANK]);
+            } else {
+                turnLabel.setText("Computer Wins!!");
+                turnLabel.setForeground(PLAYER_COLORS[3 - ui.getPlayerDisk()]);
+            }
+        }
+    }
+
+    /**
      * Show and start the GUI.
      */
     public synchronized void start() {
@@ -316,22 +368,10 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
      */
     public synchronized void updateGameScreen() {
         updateBoard();
-        if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
-            if (ui.getGame().currentTurn() == 1) {
-                turnLabel.setText("Red's Turn");
-                turnLabel.setForeground(PLAYER_COLORS[GameBoard.RED]);
-            } else {
-                turnLabel.setText("Yellow's Turn");
-                turnLabel.setForeground(PLAYER_COLORS[GameBoard.YELLOW]);
-            }
+        if (ui.getWinner() == 0) {
+            updateFieldsMidGame();
         } else {
-            if (ui.isPlayersTurn()) {
-                turnLabel.setText("Your Turn...");
-                turnLabel.setForeground(PLAYER_COLORS[ui.getPlayerDisk()]);
-            } else {
-                turnLabel.setText("Thinking...");
-                turnLabel.setForeground(PLAYER_COLORS[3 - ui.getPlayerDisk()]);
-            }
+            updateFieldsPostGame();
         }
     }
 
@@ -351,6 +391,8 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
             case PLAYER_V_RANDOM: case PLAYER_V_COMPUTER:
                 if (ui.getWinner() == ui.getPlayerDisk()) {
                     return ui.getGame().toWin() + " in a row! You win!";
+                } else if (ui.getWinner() == 3) {
+                    return "The game ended in a draw.";
                 } else {
                     return "Better luck next time! The computer got " + ui.getGame().toWin() + " in a row. You lost...";
                 }
@@ -402,9 +444,7 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
             if (action == 0) {
                 computerMoveThread = new ComputerMove();
                 computerMoveThread.start();
-                movePlayed();
             }
-            
         }
     }
 
@@ -418,6 +458,7 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
             ui.computerTurn(); // This method will only play the computer's move if it is it's turn, so we can call it here safely.
             if (!Thread.interrupted()) {
                 updateGameScreen();
+                movePlayed();
             }
         }
     }
@@ -432,22 +473,29 @@ public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit
     private class UndoMoveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (!ui.isDone()) {
-                if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
+            if (ui.isDone()) {
+                return;
+            }
+            if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
+                ui.undoLast();
+            } else {
+                if (ui.isPlayersTurn()) {
+                    if (ui.getGame().getPlayStack().size() > 1) {
                     ui.undoLast();
+                    ui.undoLast();
+                    }
                 } else {
-                    if (ui.isPlayersTurn()) {
-                        if (ui.getGame().getPlayStack().size() > 1) {
-                        ui.undoLast();
-                        ui.undoLast();
-                        }
-                    } else {
-                        computerMoveThread.interrupt();
-                        ui.undoLast();
+                    computerMoveThread.interrupt();
+                    ui.undoLast();
+                    try {
+                        computerMoveThread.join();
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                        return;
                     }
                 }
-                updateGameScreen(); 
             }
+            updateGameScreen(); 
         }
     }
 
