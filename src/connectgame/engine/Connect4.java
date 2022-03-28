@@ -172,7 +172,6 @@ public class Connect4 implements ConnectGame {
     }
 
     public void playComputer() {
-        System.out.println();
         long startTime = System.nanoTime();
         transpositionTable = new HashMap<>();
         int maxEval = -1000;
@@ -188,7 +187,6 @@ public class Connect4 implements ConnectGame {
                 maxEval = eval;
             }
             current.popDisk(columnMove);
-            System.out.println("" + columnMove + " : " + eval);
         }
         
         if (!Thread.interrupted()) {
