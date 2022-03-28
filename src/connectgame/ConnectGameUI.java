@@ -4,9 +4,6 @@ import connectgame.engine.*;
 
 import java.awt.event.MouseEvent;
 
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.InvalidAttributesException;
-
 public class ConnectGameUI {
 
     public enum GameMode {
@@ -14,10 +11,6 @@ public class ConnectGameUI {
         PLAYER_V_RANDOM,
         PLAYER_V_COMPUTER
     }
-
-    private static final int BLANK = GameBoard.BLANK;
-    private static final int RED = GameBoard.RED;
-    private static final int YELLOW = GameBoard.YELLOW;
 
     private int defaultSpaceSize = 50;
     

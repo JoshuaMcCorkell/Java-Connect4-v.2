@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 
-public class GUI extends MouseAdapter {
+public class GUI extends MouseAdapter { // TODO: Computer thinking.. make it fit in the turnlabel. 
 
     public enum Screen {
         GAME_SCREEN(0),
@@ -79,12 +79,11 @@ public class GUI extends MouseAdapter {
     private JRadioButton redStartSelect;
     private JRadioButton yellowStartSelect;
     private JCheckBox allowUndoCheckBox;
+
+    private Random rn = new Random();
     
     /**
-     * Creates a ConnectGameGUI with all settings default:
-     * <ul>
-     * <li>ConnectGame: Connect4
-     * <li>Game Mode: Player v Player
+     * Creates a Connect Game GUI with a Connect4 Game.
      */
     public GUI() {
         try {
@@ -96,13 +95,6 @@ public class GUI extends MouseAdapter {
         }
 
         frame = new JFrame();
-        init();
-    }
-
-    /**
-     * Initializes the GUI.
-     */
-    private synchronized void init() {
         currentWidth = 13 * DISK_SIZE;
         currentHeight = 9 * DISK_SIZE;
 
@@ -119,6 +111,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * Initializes the Game Screen.
+     * @param allowUndo  true if undoing moves is allowed, false if not. 
+     * This basically toggles the undo button.
      */
     private synchronized void initGameScreen(boolean allowUndo) {
         final int panelNo = Screen.GAME_SCREEN.panelArrayPosition();
@@ -136,12 +130,12 @@ public class GUI extends MouseAdapter {
         newGameButton.addActionListener(new GameScreenNewGameButtonListener());
 
         turnLabel = new JLabel();
-        turnLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 115, 250, 40);
+        turnLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 65, 350, 40);
         turnLabel.setFont(SUBTITLE_FONT);
 
         if (allowUndo) {
             JButton undoButton = new JButton("Undo");
-            undoButton.setBounds(ui.gameColumns() * 50 + 30, 65, 150, 40);
+            undoButton.setBounds(ui.gameColumns() * 50 + 30, 115, 150, 40);
             undoButton.setFont(LABEL_FONT);
             undoButton.addActionListener(new UndoMoveButtonListener());
             panels[panelNo].add(undoButton);
@@ -165,11 +159,11 @@ public class GUI extends MouseAdapter {
 
         JLabel startTitle = new JLabel();
         startTitle.setText("Connect 4");
-        startTitle.setFont(new Font("Arial Bold", Font.PLAIN, 60));
+        startTitle.setFont(new Font(FONT_NAME, Font.PLAIN, 60));
         startTitle.setBounds((currentWidth/2) - 160,(currentHeight/2) - 80,300,50);
 
         JButton startButton = new JButton("Play");
-        startButton.setFont(new Font("Arial Bold", Font.PLAIN, 30));
+        startButton.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
         startButton.setBounds((currentWidth/2) - 110,(currentHeight/2) + 10,200,40);
         startButton.addActionListener(new StartGameButtonListener());
 
@@ -335,7 +329,7 @@ public class GUI extends MouseAdapter {
                 turnLabel.setText("Your Turn...");
                 turnLabel.setForeground(PLAYER_COLORS[ui.getPlayerDisk()]);
             } else {
-                turnLabel.setText("Computer Thinking...");
+                turnLabel.setText("Thinking...");
                 turnLabel.setForeground(PLAYER_COLORS[3 - ui.getPlayerDisk()]);
             }
         }
@@ -387,9 +381,9 @@ public class GUI extends MouseAdapter {
                 options[1]
             );
             switch (input) {
-                case 0: return 1;
                 case 1: newGame(); return 2;
-                case 2: System.exit(0);
+                case 2: System.exit(0); break;
+                case 0: default: return 1;
             }
         }
         return 0;
@@ -509,7 +503,7 @@ public class GUI extends MouseAdapter {
                 default: ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; // Should never happen.
             }
             switch (startPlayerSelect.getSelection().getActionCommand()) {
-                case "random": ngStartPlayer = new Random().nextInt(1, 3); break;
+                case "random": ngStartPlayer = rn.nextInt(1, 3); break;
                 case "red": ngStartPlayer = GameBoard.RED; break;
                 case "yellow": ngStartPlayer = GameBoard.YELLOW; break;
                 default: ngStartPlayer = 1; // Should never happen.

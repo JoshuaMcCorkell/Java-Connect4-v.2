@@ -53,7 +53,7 @@ public class Connect4 implements ConnectGame {
     }
     
     public boolean undoLast() {
-        if (playStack.size() > 0) {
+        if (!playStack.isEmpty()) {
             current.popDisk(playStack.pop());
             currentTurn = (currentTurn == RED)? YELLOW : RED;
             return true;

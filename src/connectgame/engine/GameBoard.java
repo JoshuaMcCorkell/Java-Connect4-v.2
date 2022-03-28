@@ -20,8 +20,7 @@ public class GameBoard {
     private int columns;
     private int toWin;
 
-    private double middleColumn;
-    private int[] allColumns;
+    private int middleColumn;
     private int[] sortedLegalOrder;
 
     /**
@@ -35,7 +34,7 @@ public class GameBoard {
         this.rows = rows;
         this.toWin = toWin;
 
-        this.middleColumn = columns/2;
+        this.middleColumn = columns / 2;
         
         data = new int[columns][rows];
         nextDisk = new int[columns];
@@ -54,13 +53,13 @@ public class GameBoard {
      * Sorted by distance from the center.
      */
     private void setSortedLegalOrder() {
-            allColumns = new int[columns];
+            int[] allColumns = new int[columns];
             for (int i = 0; i < columns; i++) {
                 allColumns[i] = i;
             }
             sortedLegalOrder = Arrays.stream(allColumns)
                 .boxed()
-                .sorted((a, b) -> (int) (Math.abs(middleColumn - a) - Math.abs(middleColumn - b)))
+                .sorted((a, b) -> (Math.abs(middleColumn - a) - Math.abs(middleColumn - b)))
                 .mapToInt(i -> i)
                 .toArray();
     }
