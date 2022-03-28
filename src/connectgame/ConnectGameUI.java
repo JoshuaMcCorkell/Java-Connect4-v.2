@@ -179,7 +179,10 @@ public class ConnectGameUI {
         if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
             final int playColumn = (mouseEvent.getX() - 10) / defaultSpaceSize;
             if (playColumn < gameColumns()) {
-                game.safePlay(playColumn);
+                boolean played = game.safePlay(playColumn);
+                if (played) {
+                    GUI.playSound(GUI.MOVE_PLAYED_SOUND);
+                }
             }
         }
     }
@@ -192,6 +195,7 @@ public class ConnectGameUI {
         if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) { 
             // If it is now the computer's turn and the game is not over, play their move. 
             playAuto();
+            GUI.playSound(GUI.MOVE_PLAYED_SOUND);
         }
     }
 }

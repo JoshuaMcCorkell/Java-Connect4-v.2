@@ -7,10 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Random;
 import java.awt.Font;
 import java.awt.Color;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -20,6 +22,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -58,6 +65,9 @@ public class GUI extends MouseAdapter {
     private static final Font LABEL_FONT = new Font(FONT_NAME, Font.PLAIN, 20);
     private static final Font SUBTITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 30);
 
+    public static final File CLICK_SOUND_1 = new File("sounds/Click Sound 1.wav"); 
+    public static final File MOVE_PLAYED_SOUND = new File("sounds/Move Played Sound.wav");
+
     private ConnectGameUI ui;
     private Screen currentScreen;
     private ComputerMove computerMoveThread;
@@ -79,11 +89,11 @@ public class GUI extends MouseAdapter {
     private JRadioButton redStartSelect;
     private JRadioButton yellowStartSelect;
     private JCheckBox allowUndoCheckBox;
-
     private Random rn = new Random();
     
     /**
      * Creates a Connect Game GUI with a Connect4 Game.
+     * @throws FileNotFoundException
      */
     public GUI() {
         try {
@@ -107,6 +117,21 @@ public class GUI extends MouseAdapter {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         setCurrentScreen(Screen.START_SCREEN);
+    }
+
+    /**
+     * Plays the sound in the designated file if possible.
+     * @param soundFile  The audio file to play.
+     */
+    public static void playSound(File soundFile) {
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile.toURI().toURL());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -261,7 +286,7 @@ public class GUI extends MouseAdapter {
         }
         frame.add(panels[newScreen.panelArrayPosition()]);
         currentScreen = newScreen;
-        
+        playSound(CLICK_SOUND_1);
         frame.revalidate();
         frame.repaint();
     }
@@ -503,7 +528,7 @@ public class GUI extends MouseAdapter {
      * Game Screen:
      * <p>Action Listener for the New Game Button. Asks the user if they want to start a new game, and does so if OK.
      */
-    private class GameScreenNewGameButtonListener implements ActionListener {           
+    private class GameScreenNewGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             int newGameConfirmation = JOptionPane.showConfirmDialog(
@@ -529,6 +554,7 @@ public class GUI extends MouseAdapter {
     private class StartGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            playSound(CLICK_SOUND_1); // This is so the sound gets loaded without lagging as much as possible.
             setCurrentScreen(Screen.NEW_GAME_SCREEN);
         }
     }

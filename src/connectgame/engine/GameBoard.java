@@ -296,6 +296,21 @@ public class GameBoard {
         return legalPlays.stream().mapToInt(i -> i).toArray();
     }
 
+    /**
+     * This method returns the flattened version of the main GameBoard data array, mainly for use by the hashcode. 
+     * @return  A 1 dimensional array of size {@code rows * columns}.
+     */
+    private int[] getFlattenedDataArray() {
+        int[] flatData = new int[rows * columns];
+        int k = 0;
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
+                flatData[k++] = data[i][j];
+            }
+        }
+        return flatData;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this) {
@@ -310,6 +325,6 @@ public class GameBoard {
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(data);
+        return Arrays.hashCode(getFlattenedDataArray());
     }
 }

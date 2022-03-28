@@ -20,7 +20,7 @@ public class Connect4 implements ConnectGame {
     private LinkedList<Play> playStack;
     private HashMap<GameBoard, Integer> transpositionTable;
     private Random rn = new Random();
-    private int depth = 13;
+    private int depth = 10;
 
     /**
      * Constructs an empty Connect4 game object with RED (1) to start, and an empty playStack.
@@ -132,7 +132,7 @@ public class Connect4 implements ConnectGame {
             }
         }
         boolean broke = false;
-        // Maximizing : finds the best way forward for the computer.
+        // Maximizing: finds the best way forward for the computer.
         if (maximizing) {
             int maxEval = -1000;
             for (int columnMove : current.getLegal()) {
@@ -172,6 +172,7 @@ public class Connect4 implements ConnectGame {
     }
 
     public void playComputer() {
+        System.out.println();
         long startTime = System.nanoTime();
         transpositionTable = new HashMap<>();
         int maxEval = -1000;
@@ -187,6 +188,7 @@ public class Connect4 implements ConnectGame {
                 maxEval = eval;
             }
             current.popDisk(columnMove);
+            System.out.println("" + columnMove + " : " + eval);
         }
         
         if (!Thread.interrupted()) {
