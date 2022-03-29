@@ -174,28 +174,32 @@ public class ConnectGameUI {
      * This is an event handler for a MouseEvent from a GUI using this ConnectGameUI.
      * All it does is play a move based on the current click, if legal and it is the player's turn. 
      * @param mouseEvent  The mouse event. The only properties used are the X and Y values.
+     * @return  Whether a move was played.
      */
-    public void playerMousePressed(MouseEvent mouseEvent) {
+    public boolean playerMousePressed(MouseEvent mouseEvent) {
         if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
             final int playColumn = (mouseEvent.getX() - 10) / defaultSpaceSize;
             if (playColumn < gameColumns()) {
                 boolean played = game.safePlay(playColumn);
                 if (played) {
-                    GUI.playSound(GUI.MOVE_PLAYED_SOUND);
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     /**
      * Plays the computer's move IF legal andg it is the computer's turn.
      * Should be run in a separate thread.
+     * @return  Whether a move was played.
      */
-    public void computerTurn() {
+    public boolean computerTurn() {
         if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) { 
             // If it is now the computer's turn and the game is not over, play their move. 
             playAuto();
-            GUI.playSound(GUI.MOVE_PLAYED_SOUND);
+            return true;
         }
+        return false;
     }
 }

@@ -73,7 +73,7 @@ public class GUI extends MouseAdapter {
     private ComputerMove computerMoveThread;
     private int currentWidth;
     private int currentHeight;
-
+    private boolean soundFXToggle = true;
     private JFrame frame;
     private JPanel[] panels;
     
@@ -103,7 +103,6 @@ public class GUI extends MouseAdapter {
         } catch (Exception ignore) {
             // Just keeps the default Look and Feel
         }
-
         frame = new JFrame();
         currentWidth = 13 * DISK_SIZE;
         currentHeight = 9 * DISK_SIZE;
@@ -123,14 +122,16 @@ public class GUI extends MouseAdapter {
      * Plays the sound in the designated file if possible.
      * @param soundFile  The audio file to play.
      */
-    public static void playSound(File soundFile) {
-        try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile.toURI().toURL());
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
+    public void playSound(File soundFile) {
+        if (soundFXToggle) {
+            try {
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile.toURI().toURL());
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -165,6 +166,16 @@ public class GUI extends MouseAdapter {
             undoButton.addActionListener(new UndoMoveButtonListener());
             panels[panelNo].add(undoButton);
         }
+
+        JButton helpButton = new JButton("Help");
+        helpButton.addActionListener(new HelpButtonListener());
+        helpButton.setBounds(currentWidth - 100, 5, 80, 20);
+        JButton toggleSoundFXButton = new JButton("FX?");
+        toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
+        toggleSoundFXButton.setBounds(currentWidth - 150, 5, 50, 20);
+
+        panels[panelNo].add(toggleSoundFXButton);
+        panels[panelNo].add(helpButton);
         panels[panelNo].add(gameTitle);
         panels[panelNo].add(newGameButton);
         panels[panelNo].add(turnLabel);
@@ -235,7 +246,7 @@ public class GUI extends MouseAdapter {
         gameModeSelect.add(pvrSelect);
         gameModeSelect.add(pvcSelect);
 
-        startSelectTitle = new JLabel("Starting Player:");
+        startSelectTitle = new JLabel("Your Colour:");
         startSelectTitle.setBounds(265, y, 350, 40);
         startSelectTitle.setFont(SUBTITLE_FONT);
         
@@ -266,6 +277,15 @@ public class GUI extends MouseAdapter {
         startGameButton.setFont(SUBTITLE_FONT);
         startGameButton.addActionListener(new NewGameButtonListener());
 
+        JButton helpButton = new JButton("Help");
+        helpButton.addActionListener(new HelpButtonListener());
+        helpButton.setBounds(currentWidth - 100, 5, 80, 20);
+        JButton toggleSoundFXButton = new JButton("FX?");
+        toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
+        toggleSoundFXButton.setBounds(currentWidth - 150, 5, 50, 20);
+
+        panels[panelNo].add(toggleSoundFXButton);
+        panels[panelNo].add(helpButton);
         panels[panelNo].add(newGameTitle);
         panels[panelNo].add(gameModeSelectTitle);
         panels[panelNo].add(pvpSelect);
@@ -463,7 +483,9 @@ public class GUI extends MouseAdapter {
             if (computerMoveThread != null && computerMoveThread.isAlive()) {
                 return;
             }
-            ui.playerMousePressed(mouseEvent);
+            if (ui.playerMousePressed(mouseEvent)) {
+                playSound(MOVE_PLAYED_SOUND);
+            }
             updateGameScreen();
             int action = movePlayed();
             if (action == 0) {
@@ -480,11 +502,12 @@ public class GUI extends MouseAdapter {
     private class ComputerMove extends Thread {
         @Override 
         public void run() {
-            ui.computerTurn(); // This method will only play the computer's move if it is it's turn, so we can call it here safely.
-            if (!Thread.interrupted()) {
+            boolean isMovePlayed = ui.computerTurn();
+            if (isMovePlayed && !Thread.interrupted()) { // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+                playSound(MOVE_PLAYED_SOUND);
                 updateGameScreen();
                 movePlayed();
-            }
+            }     
         }
     }
 
@@ -520,6 +543,7 @@ public class GUI extends MouseAdapter {
                     }
                 }
             }
+            playSound(CLICK_SOUND_1);
             updateGameScreen(); 
         }
     }
@@ -621,6 +645,38 @@ public class GUI extends MouseAdapter {
             panels[panelNo].add(yellowStartSelect);
             panels[panelNo].revalidate();
             panels[panelNo].repaint();
+        }
+    }
+
+    /**
+     * An Action Listener for the help button. Brings up a JOptionPane that tells you how to play connect 4.
+     */
+    private class HelpButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            playSound(CLICK_SOUND_1);
+            JOptionPane.showMessageDialog(
+                frame,
+                """
+                    The aim of the game is to get 4 of your tokens in a row, 
+                    while stopping your opponent from doing the same. When you
+                    place a token in a column, it falls down to the next available
+                    space in that column. 
+                """,
+                "About",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            playSound(CLICK_SOUND_1);
+        }
+    }
+
+    /**
+     * An Action Listener for the sound FX toggle button.
+     */
+    private class ToggleSoundFXListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            soundFXToggle = !soundFXToggle;
         }
     }
 
