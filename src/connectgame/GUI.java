@@ -1,8 +1,7 @@
 package connectgame;
 
-import connectgame.ConnectGameUI.GameMode;
-import connectgame.engine.*;
-
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -11,29 +10,46 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
-import java.awt.Font;
-import java.awt.Color;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JRadioButton;
-import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import connectgame.ConnectGameUI.GameMode;
+import connectgame.engine.GameBoard;
 
+/**
+ * <h4>GUI<h4>
+ * This is a class that creates and runs a Connect 4 GUI. It is possible to adapt this,
+ * however, to another ConnectGame, although there are some things that would need to 
+ * be altered.
+ */
 public class GUI extends MouseAdapter {
-
+    
+    /**
+     * This is an enum for all the different possible screens for the GUI
+     * to be currently on. Each enum value has a number associated with it 
+     * that is its position in the panel array. it can be accessed by 
+     * ENUM_VALUE.panelArrayPosition()
+     * @implNote  For future implementations, implement each enum value with
+     * an actual panel, instead of just an array position. This would be a 
+     * LOT easier to work with.
+     */
     public enum Screen {
         GAME_SCREEN(0),
         START_SCREEN(1),
@@ -50,6 +66,7 @@ public class GUI extends MouseAdapter {
         }
     }
 
+    // Important constants for rendering, describing disks etc.
     private static final int DISK_SIZE = 50;
     private static final ImageIcon[] DISK_ICONS = {
         new ImageIcon("images/Blank.png"), // Blank spot (0)
@@ -60,14 +77,17 @@ public class GUI extends MouseAdapter {
     private static final String[] PLAYER = {"Error", "Red", "Yellow"};
     private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
 
+    // Fonts
     private static final String FONT_NAME = "Arial Bold";
     private static final Font TITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 40);
     private static final Font LABEL_FONT = new Font(FONT_NAME, Font.PLAIN, 20);
     private static final Font SUBTITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 30);
 
+    // Sounds
     public static final File CLICK_SOUND_1 = new File("sounds/Click Sound 1.wav"); 
     public static final File MOVE_PLAYED_SOUND = new File("sounds/Move Played Sound.wav");
 
+    // GUI level fields.
     private ConnectGameUI ui;
     private Screen currentScreen;
     private ComputerMove computerMoveThread;
@@ -82,7 +102,7 @@ public class GUI extends MouseAdapter {
     private JLabel[][] board;  
     private JLabel turnLabel;
     //New Game Screen
-    private ButtonGroup gameModeSelect;
+    private ButtonGroup gameModeSelect; 
     private ButtonGroup startPlayerSelect;
     private JLabel startSelectTitle;
     private JRadioButton randomStartSelect;
@@ -170,9 +190,9 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help");
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton("FX?");
+        JButton toggleSoundFXButton = new JButton("FX: On");
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
-        toggleSoundFXButton.setBounds(currentWidth - 150, 5, 50, 20);
+        toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
         panels[panelNo].add(toggleSoundFXButton);
         panels[panelNo].add(helpButton);
@@ -280,9 +300,9 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help");
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton("FX?");
+        JButton toggleSoundFXButton = new JButton("FX: On");
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
-        toggleSoundFXButton.setBounds(currentWidth - 150, 5, 50, 20);
+        toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
         panels[panelNo].add(toggleSoundFXButton);
         panels[panelNo].add(helpButton);
@@ -496,8 +516,9 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * The purpose of this private class is to be able to have the UI handling click events in a separate thread 
-     * to avoid unresponsiveness when calculating the computer move. 
+     * The purpose of this private class is to be able to have the UI handling 
+     * click events in a separate thread to avoid unresponsiveness 
+     * when calculating the computer move. 
      */
     private class ComputerMove extends Thread {
         @Override 
@@ -550,7 +571,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * Game Screen:
-     * <p>Action Listener for the New Game Button. Asks the user if they want to start a new game, and does so if OK.
+     * <p>Action Listener for the New Game Button. Asks the user if they 
+     * want to start a new game, and does so if OK.
      */
     private class GameScreenNewGameButtonListener implements ActionListener {
         @Override
@@ -585,8 +607,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * New Game Screen:
-     * <p>Starts a new game (ui) and initializes the game screen based on the current selections in the 
-     * gameModeSelect and startPlayerSelect button groups.
+     * <p>Starts a new game (ui) and initializes the game screen based on 
+     * the current selections in the gameModeSelect and startPlayerSelect button groups.
      */
     private class NewGameButtonListener implements ActionListener {
         @Override
@@ -617,7 +639,9 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * An Action Listener for hiding the options to choose the starting player when plaver v player is selected.
+     * New Game Screen:
+     * <p>An Action Listener for hiding the options to choose the starting player 
+     * when plaver v player is selected.
      */
     private class HideStartPlayerSelect implements ActionListener {
         @Override
@@ -633,7 +657,8 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * An Action Listener for showing the options to choose the starting player when player v player is deselected.
+     * An Action Listener for showing the options to choose the 
+     * starting player when player v player is deselected.
      */
     private class ShowStartPlayerSelect implements ActionListener {
         @Override
@@ -649,7 +674,8 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * An Action Listener for the help button. Brings up a JOptionPane that tells you how to play connect 4.
+     * An Action Listener for the help button. 
+     * Brings up a JOptionPane that tells you how to play connect 4.
      */
     private class HelpButtonListener implements ActionListener {
         @Override
@@ -677,6 +703,12 @@ public class GUI extends MouseAdapter {
         @Override
         public void actionPerformed(ActionEvent e) {
             soundFXToggle = !soundFXToggle;
+            AbstractButton thisComponent = (AbstractButton) e.getSource();
+            if (soundFXToggle) {
+                thisComponent.setText("FX: On");
+            } else {
+                thisComponent.setText("FX: Off");
+            }
         }
     }
 

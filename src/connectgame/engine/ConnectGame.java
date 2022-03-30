@@ -23,8 +23,9 @@ public interface ConnectGame {
     public boolean safePlay(int column);
 
     /**
-     * Undoes the most recent play. Will be able to undo all the way until the start of the game, unless the game 
-     * was initialized from a custom position, in which case it will stop at that position. 
+     * Undoes the most recent play. Will be able to undo all the way 
+     * until the start of the game, unless the game was initialized from a custom position, 
+     * in which case it can stop at that position. 
      * @return {@code true} if successful, {@code false} if there are no more plays to undo.
      */
     public boolean undoLast();
@@ -47,7 +48,8 @@ public interface ConnectGame {
 
     /**
      * Returns the disk (int) who has won the game.
-     * @return RED or YELLOW (1 or 2) if applicable, 0 if game is not over, 3 if game is over and ended in a draw.
+     * @return RED or YELLOW (1 or 2) if applicable, 0 if game is not over, 
+     * 3 if game is over and ended in a draw.
      */
     public int getWinner();
 
@@ -57,17 +59,20 @@ public interface ConnectGame {
     public GameBoard getGameBoard();
 
     /**
-     * Returns the amount of columns in the GameBoard. Should be constant for any 1 implementation.
+     * Returns the amount of columns in the GameBoard. 
+     * Should be constant for any 1 implementation.
      */
     public int columns();
 
     /**
-     * Returns the amount of rows in the GameBoard. Should be constant for any 1 implementation.
+     * Returns the amount of rows in the GameBoard. 
+     * Should be constant for any 1 implementation.
      */
     public int rows();
 
     /**
-     * Returns the amount of disks required to win the game. Should be constant for any 1 implementation.
+     * Returns the amount of disks required to win the game. 
+     * Should be constant for any 1 implementation.
      */
     public int toWin();
 

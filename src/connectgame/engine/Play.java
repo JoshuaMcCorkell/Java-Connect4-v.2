@@ -16,4 +16,21 @@ class Play {
         this.disk = disk;
         this.column = column;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Play)) {
+            return false;
+        }
+        Play other = (Play) o;
+        return (other.disk == this.disk) && (other.column == this.column);
+    }
+
+    @Override
+    public int hashCode() {
+        return (10 * disk) + column;
+    }
 }

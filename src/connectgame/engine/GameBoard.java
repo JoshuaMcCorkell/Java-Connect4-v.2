@@ -5,8 +5,9 @@ import java.util.LinkedList;
 
 /**
  * <h4>GameBoard</h4>
- * <p>This class essentially contains a ConnectGame GameBoard, which is a two dimensional array containing BLANK, RED, 
- * and YELLOW values (which are 0, 1, and 2 respectively), and the methods associated with core game logic and rules.</p>
+ * <p>This class essentially contains a ConnectGame GameBoard, which is a 
+ * two dimensional array containing BLANK, RED, and YELLOW values 
+ * (which are 0, 1, and 2 respectively), and the methods associated with core game logic and rules.
  */
 public class GameBoard {
     // Disk Constants
@@ -24,10 +25,12 @@ public class GameBoard {
     private int[] sortedLegalOrder;
 
     /**
-     * Initializes an empty ConnectGame GameBoard with the dimensions given and the default winning amount given.
+     * Initializes an empty ConnectGame GameBoard with the dimensions 
+     * given and the default winning amount given.
      * @param columns any non-zero integer.
      * @param rows  any non-zero integer.
-     * @param toWin  any non-zero integer lower than the amount of columns <strong>and</strong> the amount of rows.
+     * @param toWin  any non-zero integer lower than the amount of 
+     * columns <em>and</em> the amount of rows.
      */
     public GameBoard(int columns, int rows, int toWin) {
         this.columns = columns;
@@ -113,8 +116,9 @@ public class GameBoard {
     
     /**
      * Sets the number of consecutive disks required to win the game in this GameBoard. 
-     * <p><strong>Warning:</strong> The behaviour of the checkWin and (internal) checkLines methods could be unexpected 
-     * if this property is reduced part way through a game. This is because there might be winning lines already in place with the new toWin length
+     * <p><strong>Warning:</strong> The behaviour of the checkWin and (internal) checkLines 
+     * methods could be unexpected if this property is reduced part way through a game. 
+     * This is because there might be winning lines already in place with the new toWin length
      * that have not been checked for.
      * @param toWin  The new length of a winning line required to win the game. 
      */
@@ -168,7 +172,8 @@ public class GameBoard {
     }
     
     /**
-     * Whether the current GameBoard is 'full' or not. This means whether every space is occupied by a disk (1 or 2)
+     * Whether the current GameBoard is 'full' or not. This means whether every space 
+     * is occupied by a disk (1 or 2)
      * @return  {@code true} if full, otherwise {@code false}.
      */
     public boolean isFull() {
@@ -188,43 +193,65 @@ public class GameBoard {
     }
     
     /**
-     * <p>This method checks all the designated potential winning lines, and returns RED or YELLOW (1 or 2) if any of them are winning (consecutive disks of either colour.)
-     * <p>This method loops through the columns and rows designated by the parameters. Each pair of (column, row) will be a space on the GameBoard. 
-     * This space will be the <em>start</em> of a potential winning line. Each potential winning line will have a length of {@code winAmount} 
-     * and will be going in the direction designated by the {@code columnStep} and {@code rowStep} parameters. The return value is the Disk (int) of the winner, 
-     * 0 if none. 
+     * <p>This method checks all the designated potential winning lines, and returns 
+     * RED or YELLOW (1 or 2) if any of them are winning (consecutive disks of either colour.)
+     * <p>This method loops through the columns and rows designated by the parameters. 
+     * Each pair of (column, row) will be a space on the GameBoard. 
+     * This space will be the <em>start</em> of a potential winning line. 
+     * Each potential winning line will have a length of {@code winAmount} 
+     * and will be going in the direction designated by the {@code columnStep} and 
+     * {@code rowStep} parameters. The return value is the Disk (int) of the winner, 0 if none. 
      * <p>For example: 
-     * {@code checkLines(0, 3, 0, 2, 1, 1, 4)} will check all upwards diagonals ({@code columnStep = 1, rowStep = 1}) starting in the columns 0 - 2 (3 columns) 
+     * {@code checkLines(0, 3, 0, 2, 1, 1, 4)} will check all upwards diagonals 
+     * ({@code columnStep = 1, rowStep = 1}) starting in the columns 0 - 2 (3 columns) 
      * and rows 0 - 1 (2 rows).
      * @param startColumn  The first column to check. Must be a column in the current GameBoard.
-     * @param columnAmount  The amount of columns to check. This number, in combination with the {@code startColumn}, {@code columnStep} and {@code winAmount} parameters, 
-     * must not cause the algorithm to check outside the bounds of the GameBoard. <p>For example, using {@code startColumn = 0, columnAmount = 5, columnStep = 1} and
+     * @param columnAmount  The amount of columns to check. This number, in combination with 
+     * the {@code startColumn}, {@code columnStep} and {@code winAmount} parameters, 
+     * must not cause the algorithm to check outside the bounds of the GameBoard. 
+     * <p>For example, using {@code startColumn = 0, columnAmount = 5, columnStep = 1} and
      * {@code winAmount = 4} will raise an error if the GameBoard has less than 7 columns.
      * @param startRow  The first row to check. Must be a row in the current GameBoard.
-     * @param rowAmount  The amount of rows to check. This number, in combination with the {@code startRow}, {@code rowStep} and {@code winAmount} parameters, 
-     * must not cause the algorithm to check outside the bounds of the GameBoard. <p>For example, using {@code startRow = 0, rowAmount = 4, rowStep = 1} and
+     * @param rowAmount  The amount of rows to check. This number, in combination with 
+     * the {@code startRow}, {@code rowStep} and {@code winAmount} parameters, 
+     * must not cause the algorithm to check outside the bounds of the GameBoard. 
+     * <p>For example, using {@code startRow = 0, rowAmount = 4, rowStep = 1} and
      * {@code winAmount = 4} will raise an error if the GameBoard has less than 6 rows.
      * @param columnStep  The amount of columns to advance for each space in the potential winning line. 
-     * @param rowStep  The amount of rows to advance (in an upwards direction) for each space in the potential winning line.
-     * <p>For example if {@code columnStep = 1} and {@code rowStep = 1} the potential winning lines will be in an upwards diagonal direction. 
-     * Similarly, if {@code columnStep = 0} and {@code rowStep = 1} the potential winning lines will be vertical.
-     * @param winAmount  The amount of spaces to check for each of the potential winning lines. All of the spaces in the winning line must be either RED or YELLOW (1 or 2) 
+     * @param rowStep  The amount of rows to advance (in an upwards direction) 
+     * for each space in the potential winning line.
+     * <p>For example if {@code columnStep = 1} and {@code rowStep = 1} the potential 
+     * winning lines will be in an upwards diagonal direction. 
+     * Similarly, if {@code columnStep = 0} and {@code rowStep = 1} the potential 
+     * winning lines will be vertical.
+     * @param winAmount  The amount of spaces to check for each of the potential 
+     * winning lines. All of the spaces in the winning line must be either RED or YELLOW (1 or 2) 
      * to return a non-zero value.
-     * @return  0 if no winning lines are found, RED (1) if red was found to be the winner, YELLOW (2) if yellow was found to be the winner.
-     * @throws ArrayIndexOutOfBoundsException  if the parameters given cause the algorithm to check a space on the GameBoard that is out of bounds.
-     * @implNote  This method assumes there is at most 1 winning line. It returns as soon as a winning line is found, and returns 0 if all potential winning lines 
-     * have been checked and none of them are winning for either player.
+     * @return  0 if no winning lines are found, RED (1) if red was found to be the winner, 
+     * YELLOW (2) if yellow was found to be the winner.
+     * @throws ArrayIndexOutOfBoundsException  if the parameters given cause the algorithm to 
+     * check a space on the GameBoard that is out of bounds.
+     * @implNote  This method assumes there is at most 1 winning line. It returns as soon as 
+     * a winning line is found, and returns 0 if all potential winning lines have been checked 
+     * and none of them are winning for either player.
      */
-    private int checkLines(int startColumn, int columnAmount, int startRow, int rowAmount, int columnStep, int rowStep, int winAmount) {
+    private int checkLines(int startColumn, int columnAmount, int startRow, 
+                        int rowAmount, int columnStep, int rowStep, int winAmount) {
         int n; // This variable basically serves as a 'flag' for which disks are in the potential winning lines.
         final int redWin = 1;
-        final int yellowWin = (int) Math.ceil(Math.pow(YELLOW, winAmount) - 0.1); // subtract 0.1 to make sure float inaccuracy isn't a problem.
+        final int yellowWin = (int) Math.ceil(Math.pow(YELLOW, winAmount) - 0.1); 
+        // subtract 0.1 to make sure float inaccuracy isn't a problem.
         
-        for (int i = startColumn; i < startColumn + columnAmount; i++) { // Loops through the columns.
-            for (int j = startRow; j < startRow + rowAmount; j++) {  // Loops through the rows
-                // Each pair of (column, row) will be a space on the GameBoard designating the start of a potential win position. 
+        for (int i = startColumn; i < startColumn + columnAmount; i++) { 
+            // Loops through the columns.
+            for (int j = startRow; j < startRow + rowAmount; j++) {  
+                // Loops through the rows
+                // Each pair of (column, row) will be a space on the GameBoard 
+                // designating the start of a potential win position. 
                 n = 1;
-                for (int k = 0; k < winAmount; k++) { // Loops through the spaces in the potential win position, multiplying n by the value in each one. 
+                for (int k = 0; k < winAmount; k++) { 
+                    // Loops through the spaces in the potential win position, 
+                    // multiplying n by the value in each one. 
                     n *= data[i + (k * columnStep)][j + (k * rowStep)];
                 }
                 if (n == 0) { // n is 0, which means at least 1 of the spaces was blank.
@@ -243,7 +270,8 @@ public class GameBoard {
     }
 
     /**
-     * Checks if either player has won in the current position. <p>This means they have a line of consecutive Disks with length {@code toWin} specified in the constructor.
+     * Checks if either player has won in the current position. 
+     * <p>This means they have a line of consecutive Disks with length {@code toWin} specified in the constructor.
      * @return  RED or YELLOW (1 or 2) if they have won, 3 if the position has ended in a draw, otherwise 0.
      */
     public int checkWin() {
@@ -297,7 +325,8 @@ public class GameBoard {
     }
 
     /**
-     * This method returns the flattened version of the main GameBoard data array, mainly for use by the hashcode. 
+     * This method returns the flattened version of the main GameBoard data array,
+     * mainly for use by the hashcode. 
      * @return  A 1 dimensional array of size {@code rows * columns}.
      */
     private int[] getFlattenedDataArray() {

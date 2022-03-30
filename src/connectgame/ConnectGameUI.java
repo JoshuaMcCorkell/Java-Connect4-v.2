@@ -4,8 +4,17 @@ import connectgame.engine.*;
 
 import java.awt.event.MouseEvent;
 
+/**
+ * <h4>ConnectGameUI</h4>
+ * This class acts as a back end/dataclass for handling a single ConnectGame
+ * for the {@link GUI} class.
+ */
 public class ConnectGameUI {
 
+    /**
+     * All the different Game Modes that are currently supported by 
+     * this class and the GUI class.
+     */
     public enum GameMode {
         PLAYER_V_PLAYER,
         PLAYER_V_RANDOM,
@@ -31,8 +40,9 @@ public class ConnectGameUI {
     /**
      * Constructs a new ConnectGameUI object with a new Connect4 game.
      * @param mode  The game mode for this ui
-     * @param playerDisk  The disk for the player to start with. If the mode is player v player, this paramter
-     * is ignored, so use the constructor ConnectGameUI().
+     * @param playerDisk  The disk for the player to start with. If the mode is 
+     * player v player, this paramter is ignored, so use the constructor ConnectGameUI()
+     * which has the default mode as player v player.
      */
     public ConnectGameUI(GameMode mode, int playerDisk) {
         this.game = new Connect4();
@@ -101,7 +111,8 @@ public class ConnectGameUI {
     }
 
     /**
-     * Returns the winner of the current game. (RED or YELLOW (1 or 2), 3 if the game ended in a draw, 0 if game is ongoing.)
+     * Returns the winner of the current game. (RED or YELLOW (1 or 2), 3 if 
+     * the game ended in a draw, 0 if game is ongoing.)
      */
     public int getWinner() {
         return game.getWinner();
