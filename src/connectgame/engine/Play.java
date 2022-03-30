@@ -3,7 +3,7 @@ package connectgame.engine;
 /**
  * A Wrapper class for ConnectGame 'Plays'.
  */
-class Play {
+public class Play {
     int disk;
     int column;
 
@@ -32,5 +32,11 @@ class Play {
     @Override
     public int hashCode() {
         return (10 * disk) + column;
+    }
+
+    @Override
+    public String toString() {
+        String str = disk == 1? "R " : "Y ";
+        return str + (column + 1);
     }
 }

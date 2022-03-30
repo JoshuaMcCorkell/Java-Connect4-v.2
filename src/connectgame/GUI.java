@@ -39,7 +39,7 @@ import connectgame.engine.GameBoard;
  * however, to another ConnectGame, although there are some things that would need to 
  * be altered.
  */
-public class GUI extends MouseAdapter {
+public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix not working, last line of screen init.
     
     /**
      * This is an enum for all the different possible screens for the GUI
@@ -82,10 +82,13 @@ public class GUI extends MouseAdapter {
     private static final Font TITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 40);
     private static final Font LABEL_FONT = new Font(FONT_NAME, Font.PLAIN, 20);
     private static final Font SUBTITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 30);
+    private static final String NEW_GAME_STRING = "New Game";
 
     // Sounds
-    public static final File CLICK_SOUND_1 = new File("sounds/Click Sound 1.wav"); 
-    public static final File MOVE_PLAYED_SOUND = new File("sounds/Move Played Sound.wav");
+    private static final File CLICK_SOUND_1 = new File("sounds/Click Sound 1.wav"); 
+    private static final File MOVE_PLAYED_SOUND = new File("sounds/Move Played Sound.wav");
+    private static final String FX_ON = "FX: On";
+    private static final String FX_OFF = "FX: Off";
 
     // GUI level fields.
     private ConnectGameUI ui;
@@ -170,7 +173,7 @@ public class GUI extends MouseAdapter {
         gameTitle.setFont(TITLE_FONT);
         gameTitle.setBounds(10,15,300,30);
 
-        JButton newGameButton = new JButton("New Game");
+        JButton newGameButton = new JButton(NEW_GAME_STRING);
         newGameButton.setBounds(ui.gameColumns() * DISK_SIZE + 30, ui.gameRows() * DISK_SIZE + 25, 150, 40);
         newGameButton.setFont(LABEL_FONT);
         newGameButton.addActionListener(new GameScreenNewGameButtonListener());
@@ -190,7 +193,7 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help");
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton("FX: On");
+        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF);
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -202,6 +205,8 @@ public class GUI extends MouseAdapter {
 
         initBoard();
         updateGameScreen();
+
+        panels[panelNo].requestFocusInWindow();
     }
 
     /**
@@ -225,6 +230,7 @@ public class GUI extends MouseAdapter {
 
         panels[panelNo].add(startTitle);
         panels[panelNo].add(startButton);
+        panels[panelNo].requestFocusInWindow();
     }
 
     /**
@@ -236,7 +242,7 @@ public class GUI extends MouseAdapter {
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
-        JLabel newGameTitle = new JLabel("New Game");
+        JLabel newGameTitle = new JLabel(NEW_GAME_STRING);
         newGameTitle.setFont(TITLE_FONT);
         newGameTitle.setBounds(10,15,600,30);
 
@@ -300,7 +306,7 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help");
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton("FX: On");
+        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF);
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -313,6 +319,8 @@ public class GUI extends MouseAdapter {
         panels[panelNo].add(pvcSelect);
         panels[panelNo].add(allowUndoCheckBox);
         panels[panelNo].add(startGameButton);
+
+        panels[panelNo].requestFocusInWindow();
     }
 
     /**
@@ -339,10 +347,17 @@ public class GUI extends MouseAdapter {
         final int rows = ui.gameRows();
         board = new JLabel[ui.gameColumns()][ui.gameRows()];
         for (int i = 0; i < columns; i++) {
+            // Adds a number marker for each column.
+            JLabel numberMarker = new JLabel("" + (i + 1));
+            numberMarker.setBounds(i * DISK_SIZE + 5 + (DISK_SIZE / 2), 25 + (rows + 1) * DISK_SIZE, DISK_SIZE, 20);
+            numberMarker.setFont(LABEL_FONT);
+            panels[Screen.GAME_SCREEN.panelArrayPosition()].add(numberMarker);
             for (int j = 0; j < rows; j++) {
+                // Loops through each space on the GameBoard and adds a JLabel. 
+                // These will have an ImageIcon of the correct disk.
                 board[i][j] = new JLabel();
                 board[i][j].setBounds(i * DISK_SIZE + 10,((rows) * DISK_SIZE - (j) * DISK_SIZE) + 15, DISK_SIZE, DISK_SIZE);
-                panels[0].add(board[i][j]);
+                panels[Screen.GAME_SCREEN.panelArrayPosition()].add(board[i][j]);
             }
         }
     }
@@ -459,7 +474,7 @@ public class GUI extends MouseAdapter {
                 } else if (ui.getWinner() == 3) {
                     return "The game ended in a draw.";
                 } else {
-                    return "Better luck next time! The computer got " + ui.getGame().toWin() + " in a row. You lost...";
+                    return "Better luck next time! The computer got " + ui.getGame().toWin() + " in a row.";
                 }
             default:
                 return "An Error ocurred and no message could be displayed. Method: getEndGameText()";
@@ -475,7 +490,7 @@ public class GUI extends MouseAdapter {
     private synchronized int movePlayed() {
         if (ui.getWinner() != 0 && !ui.isDone()) {
             ui.finish();
-            final String[] options = {"OK", "New Game", "Exit"};
+            final String[] options = {"OK", NEW_GAME_STRING, "Exit"};
             getEndGameText();
             int input = JOptionPane.showOptionDialog(
                 frame,
@@ -705,9 +720,9 @@ public class GUI extends MouseAdapter {
             soundFXToggle = !soundFXToggle;
             AbstractButton thisComponent = (AbstractButton) e.getSource();
             if (soundFXToggle) {
-                thisComponent.setText("FX: On");
+                thisComponent.setText(FX_ON);
             } else {
-                thisComponent.setText("FX: Off");
+                thisComponent.setText(FX_OFF);
             }
         }
     }

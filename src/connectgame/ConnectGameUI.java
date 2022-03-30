@@ -1,8 +1,10 @@
 package connectgame;
 
-import connectgame.engine.*;
-
 import java.awt.event.MouseEvent;
+
+import connectgame.engine.Connect4;
+import connectgame.engine.ConnectGame;
+import connectgame.engine.GameBoard;
 
 /**
  * <h4>ConnectGameUI</h4>
@@ -189,7 +191,7 @@ public class ConnectGameUI {
      */
     public boolean playerMousePressed(MouseEvent mouseEvent) {
         if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
-            final int playColumn = (mouseEvent.getX() - 10) / defaultSpaceSize;
+            final int playColumn = (mouseEvent.getX() - 18) / defaultSpaceSize; // 18 just works.
             if (playColumn < gameColumns()) {
                 boolean played = game.safePlay(playColumn);
                 if (played) {
