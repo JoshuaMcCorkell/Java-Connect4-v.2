@@ -76,6 +76,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     };
     private static final String[] PLAYER = {"Error", "Red", "Yellow"};
     private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
+    private static final String TITLE = "Connect 4";
 
     // Fonts
     private static final String FONT_NAME = "Arial Bold";
@@ -116,29 +117,28 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     
     /**
      * Creates a Connect Game GUI with a Connect4 Game.
-     * @throws FileNotFoundException
      */
     public GUI() {
         try {
             UIManager.setLookAndFeel(
-                UIManager.getSystemLookAndFeelClassName()
+                UIManager.getSystemLookAndFeelClassName() // Set the system look and feel.
             );
         } catch (Exception ignore) {
-            // Just keeps the default Look and Feel
+            // Just keeps the default look and Feel.
         }
         frame = new JFrame();
-        currentWidth = 13 * DISK_SIZE;
+        currentWidth = 13 * DISK_SIZE; // Width and height of the GUI
         currentHeight = 9 * DISK_SIZE;
 
-        panels = new JPanel[3];
+        panels = new JPanel[3]; // Initialize the panels needed.
         initStartScreen();
         initNewGameScreen();
         
         frame.setSize(currentWidth, currentHeight);
-        frame.setTitle("Java Connect 4");
+        frame.setTitle(TITLE);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        setCurrentScreen(Screen.START_SCREEN);
+        setCurrentScreen(Screen.START_SCREEN); // Start on the start screen.
     }
 
     /**
@@ -165,35 +165,44 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      */
     private synchronized void initGameScreen(boolean allowUndo) {
         final int panelNo = Screen.GAME_SCREEN.panelArrayPosition();
+        // Initialize panel
         panels[panelNo] = new JPanel();
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
-        JLabel gameTitle = new JLabel("Connect 4");
+        JLabel gameTitle = new JLabel(TITLE); // Title
         gameTitle.setFont(TITLE_FONT);
         gameTitle.setBounds(10,15,300,30);
 
-        JButton newGameButton = new JButton(NEW_GAME_STRING);
-        newGameButton.setBounds(ui.gameColumns() * DISK_SIZE + 30, ui.gameRows() * DISK_SIZE + 25, 150, 40);
+        JButton newGameButton = new JButton(NEW_GAME_STRING); // Button to quit and start a new game
+        newGameButton.setBounds(ui.gameColumns() * DISK_SIZE + 30, 160, 150, 40);
         newGameButton.setFont(LABEL_FONT);
         newGameButton.addActionListener(new GameScreenNewGameButtonListener());
 
-        turnLabel = new JLabel();
+        turnLabel = new JLabel(); // Shows who's turn it is OR who has won the game (if it is over).
         turnLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 65, 350, 40);
         turnLabel.setFont(SUBTITLE_FONT);
 
+        JLabel modeLabel = new JLabel( // Shows the current mode
+            ui.getMode() == GameMode.PLAYER_V_PLAYER? "Player vs. Player" : // PLAYER_V_PLAYER
+            ui.getMode() == GameMode.PLAYER_V_RANDOM? "Player vs. Random" : // PLAYER_V_RANDOM
+                                                      "Player vs. Computer" // PLAYER_V_COMPUTER
+        );
+        modeLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 115, 200, 40);
+        modeLabel.setFont(LABEL_FONT);
+
         if (allowUndo) {
-            JButton undoButton = new JButton("Undo");
-            undoButton.setBounds(ui.gameColumns() * 50 + 30, 115, 150, 40);
+            JButton undoButton = new JButton("Undo"); // Undo Button
+            undoButton.setBounds(ui.gameColumns() * 50 + 30, ui.gameRows() * DISK_SIZE + 25, 150, 40);
             undoButton.setFont(LABEL_FONT);
             undoButton.addActionListener(new UndoMoveButtonListener());
             panels[panelNo].add(undoButton);
         }
 
-        JButton helpButton = new JButton("Help");
+        JButton helpButton = new JButton("Help"); // Help Button
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF);
+        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF); // Button to toggle sound FX
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -202,11 +211,10 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         panels[panelNo].add(gameTitle);
         panels[panelNo].add(newGameButton);
         panels[panelNo].add(turnLabel);
+        panels[panelNo].add(modeLabel);
 
         initBoard();
         updateGameScreen();
-
-        panels[panelNo].requestFocusInWindow();
     }
 
     /**
@@ -214,16 +222,16 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      */
     private synchronized void initStartScreen() {
         final int panelNo = Screen.START_SCREEN.panelArrayPosition();
+        // Initialize panel
         panels[panelNo] = new JPanel();
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
-        JLabel startTitle = new JLabel();
-        startTitle.setText("Connect 4");
+        JLabel startTitle = new JLabel(TITLE); // Title
         startTitle.setFont(new Font(FONT_NAME, Font.PLAIN, 60));
         startTitle.setBounds((currentWidth/2) - 160,(currentHeight/2) - 80,300,50);
 
-        JButton startButton = new JButton("Play");
+        JButton startButton = new JButton("Play"); // Button to start game
         startButton.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
         startButton.setBounds((currentWidth/2) - 110,(currentHeight/2) + 10,200,40);
         startButton.addActionListener(new StartGameButtonListener());
@@ -238,16 +246,17 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      */
     private synchronized void initNewGameScreen() {
         final int panelNo = Screen.NEW_GAME_SCREEN.panelArrayPosition();
+        // Initialize panel
         panels[panelNo] = new JPanel();
         panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
-        JLabel newGameTitle = new JLabel(NEW_GAME_STRING);
+        JLabel newGameTitle = new JLabel(NEW_GAME_STRING); // Title
         newGameTitle.setFont(TITLE_FONT);
         newGameTitle.setBounds(10,15,600,30);
 
         int y = 90;
-        JLabel gameModeSelectTitle = new JLabel("Game Mode:");
+        JLabel gameModeSelectTitle = new JLabel("Game Mode:"); // Title for the game mode select buttons
         gameModeSelectTitle.setBounds(10, y, 200, 40);
         gameModeSelectTitle.setFont(SUBTITLE_FONT);
 
@@ -267,12 +276,12 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         pvcSelect.setActionCommand("pvc");
         pvcSelect.addActionListener(new ShowStartPlayerSelect());
 
-        gameModeSelect = new ButtonGroup();
+        gameModeSelect = new ButtonGroup(); // Button group for the game mode selection
         gameModeSelect.add(pvpSelect);
         gameModeSelect.add(pvrSelect);
         gameModeSelect.add(pvcSelect);
 
-        startSelectTitle = new JLabel("Your Colour:");
+        startSelectTitle = new JLabel("Your Colour:"); // Title for the colour selection
         startSelectTitle.setBounds(265, y, 350, 40);
         startSelectTitle.setFont(SUBTITLE_FONT);
         
@@ -289,24 +298,24 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         yellowStartSelect.setBounds(265, y + 120, 300, 40);
         yellowStartSelect.setActionCommand("yellow");
 
-        startPlayerSelect = new ButtonGroup();
+        startPlayerSelect = new ButtonGroup(); // Button group for the colour selection
         startPlayerSelect.add(randomStartSelect);
         startPlayerSelect.add(redStartSelect);
         startPlayerSelect.add(yellowStartSelect);
 
-        allowUndoCheckBox = new JCheckBox("Allow Undo?", true);
+        allowUndoCheckBox = new JCheckBox("Allow Undo?", true); // Allow undo?
         allowUndoCheckBox.setFont(LABEL_FONT);
         allowUndoCheckBox.setBounds(50, y + 175, 150, 40);
 
-        JButton startGameButton = new JButton("Start Game!");
+        JButton startGameButton = new JButton("Start Game!"); // Start button
         startGameButton.setBounds(120, y + 240, 200, 40);
         startGameButton.setFont(SUBTITLE_FONT);
         startGameButton.addActionListener(new NewGameButtonListener());
 
-        JButton helpButton = new JButton("Help");
+        JButton helpButton = new JButton("Help"); // Help Button
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF);
+        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF); // Button to toggle sound FX
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -319,8 +328,6 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         panels[panelNo].add(pvcSelect);
         panels[panelNo].add(allowUndoCheckBox);
         panels[panelNo].add(startGameButton);
-
-        panels[panelNo].requestFocusInWindow();
     }
 
     /**
@@ -340,7 +347,8 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     }
 
     /**
-     * Initialize the board as an array of JLabels with ImageIcons, and add them to the mainPanel.
+     * Initialize the board as an array of JLabels with ImageIcons (not yet added), 
+     * and add them to the main panel.
      */
     private synchronized void initBoard() {
         final int columns = ui.gameColumns();
@@ -354,7 +362,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
             panels[Screen.GAME_SCREEN.panelArrayPosition()].add(numberMarker);
             for (int j = 0; j < rows; j++) {
                 // Loops through each space on the GameBoard and adds a JLabel. 
-                // These will have an ImageIcon of the correct disk.
+                // These will have an ImageIcon of the correct disk (after updateBoard() is called).
                 board[i][j] = new JLabel();
                 board[i][j].setBounds(i * DISK_SIZE + 10,((rows) * DISK_SIZE - (j) * DISK_SIZE) + 15, DISK_SIZE, DISK_SIZE);
                 panels[Screen.GAME_SCREEN.panelArrayPosition()].add(board[i][j]);
@@ -368,6 +376,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     private synchronized void updateBoard() {
         for (int i = 0; i < ui.gameColumns(); i++) {
             for (int j = 0; j < ui.gameRows(); j++) {
+                // Set the ImageIcon of each JLabel in the array
                 board[i][j].setIcon(DISK_ICONS[ui.getGameBoard().get(i, j)]);
             }
         }
@@ -377,6 +386,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      * Updates the fields, assuming the game in progress.
      */
     private synchronized void updateFieldsMidGame() {
+        // Only updates the turnLabel field at this stage
         if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
             if (ui.getGame().currentTurn() == 1) {
                 turnLabel.setText("Red's Turn");
@@ -400,6 +410,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      * Updates the fields, assuming the game has ended.
      */
     private synchronized void updateFieldsPostGame() {
+        // Only updates the turnLabel field at this stage
         if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
             if (ui.getWinner() == 1) {
                 turnLabel.setText("Red Wins!");
@@ -424,25 +435,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
             }
         }
     }
-
-    /**
-     * Show and start the GUI.
-     */
-    public synchronized void start() {
-        frame.addMouseListener(this);
-        frame.setVisible(true);
-    }
-
-    /**
-     * Resets ConnectGameGUI with all settings default:
-     * <ul>
-     * <li>ConnectGame: Connect4
-     * <li>Game Mode: Player v Player
-     */
-    public synchronized void newGame() {
-        setCurrentScreen(Screen.NEW_GAME_SCREEN);
-    }
-
+    
     /**
      * Updates the Game Screen.
      */
@@ -453,6 +446,23 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         } else {
             updateFieldsPostGame();
         }
+    }
+
+    /**
+     * Show and start the GUI.
+     */
+    public synchronized void start() {
+        frame.addMouseListener(this);
+        frame.setVisible(true);
+    }
+
+    /**
+     * Switches to the new game screen. This method is somewhat redundant, 
+     * but makes it easier if some code needs to be executed every time a
+     * new game is needed.
+     */
+    public synchronized void newGame() {
+        setCurrentScreen(Screen.NEW_GAME_SCREEN);
     }
 
     /**
@@ -489,10 +499,11 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      */
     private synchronized int movePlayed() {
         if (ui.getWinner() != 0 && !ui.isDone()) {
+            // The game just ended
             ui.finish();
             final String[] options = {"OK", NEW_GAME_STRING, "Exit"};
             getEndGameText();
-            int input = JOptionPane.showOptionDialog(
+            int input = JOptionPane.showOptionDialog( // Game over option dialog
                 frame,
                 getEndGameText(),
                 "Game Over",
@@ -502,30 +513,34 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
                 options,
                 options[1]
             );
-            switch (input) {
+            switch (input) { // The input of the dialog
                 case 1: newGame(); return 2;
                 case 2: System.exit(0); break;
                 case 0: default: return 1;
             }
         }
+        // If the game just ended, nothing extra needs to be done.
         return 0;
     }
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        if (currentScreen == Screen.GAME_SCREEN) {
-            // This will send a new mouseEvent to the UI, unless it is already handling one. 
+        if (currentScreen == Screen.GAME_SCREEN) { 
             if (computerMoveThread != null && computerMoveThread.isAlive()) {
+                // UI is currently handling a click
                 return;
             }
             if (ui.playerMousePressed(mouseEvent)) {
+                // A move was played
                 playSound(MOVE_PLAYED_SOUND);
             }
             updateGameScreen();
             int action = movePlayed();
             if (action == 0) {
+                // Start the computer move thread. This will end immediately 
+                // If it is not the computer's turn, so this is safe.
                 computerMoveThread = new ComputerMove();
-                computerMoveThread.start();
+                computerMoveThread.start(); 
             }
         }
     }
@@ -538,8 +553,9 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     private class ComputerMove extends Thread {
         @Override 
         public void run() {
-            boolean isMovePlayed = ui.computerTurn();
-            if (isMovePlayed && !Thread.interrupted()) { // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+            // This method will only play the computer's move if it is it's turn, so we can call it here safely.
+            boolean isMovePlayed = ui.computerTurn(); 
+            if (isMovePlayed && !Thread.interrupted()) { 
                 playSound(MOVE_PLAYED_SOUND);
                 updateGameScreen();
                 movePlayed();
@@ -557,18 +573,24 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     private class UndoMoveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (ui.isDone()) {
+            if (ui.isDone()) { 
+                // Do nothing if the game is over
                 return;
             }
             if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
+                // If the mode is player v player, undo 1 move
                 ui.undoLast();
             } else {
                 if (ui.isPlayersTurn()) {
                     if (ui.getGame().getPlayStack().size() > 1) {
-                    ui.undoLast();
-                    ui.undoLast();
+                        // If there are at least 2 moves to undo, it is player's turn
+                        // and mode is player v computer (or random), undo 2 moves.
+                        ui.undoLast();
+                        ui.undoLast();
                     }
                 } else {
+                    // This makes sure the correct action is taken, and the game ends on 
+                    // the player's turn, and the computermove thread is interrupted properly.
                     computerMoveThread.interrupt();
                     ui.undoLast();
                     try {
@@ -592,10 +614,11 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     private class GameScreenNewGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int newGameConfirmation = JOptionPane.showConfirmDialog(
+            playSound(CLICK_SOUND_1);
+            int newGameConfirmation = JOptionPane.showConfirmDialog( // Confirm the user wants to end the current game
                 frame,
                 "Are you sure? The contents the the current game will be discarded!",
-                "Confirm",
+                "Confirm New Game",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE
             );
@@ -604,6 +627,8 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
                     computerMoveThread.interrupt();
                 }
                 newGame();
+            } else {
+                playSound(CLICK_SOUND_1);
             }
         }
     }
@@ -615,7 +640,6 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     private class StartGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            playSound(CLICK_SOUND_1); // This is so the sound gets loaded without lagging as much as possible.
             setCurrentScreen(Screen.NEW_GAME_SCREEN);
         }
     }
@@ -632,19 +656,21 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
             int ngStartPlayer;
 
             switch (gameModeSelect.getSelection().getActionCommand()) {
+                // Read the game mode selection
                 case "pvp": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; break;
                 case "pvr": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_RANDOM; break;
                 case "pvc": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_COMPUTER; break;
                 default: ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; // Should never happen.
             }
             switch (startPlayerSelect.getSelection().getActionCommand()) {
+                // Read the starting player selection
                 case "random": ngStartPlayer = rn.nextInt(1, 3); break;
                 case "red": ngStartPlayer = GameBoard.RED; break;
                 case "yellow": ngStartPlayer = GameBoard.YELLOW; break;
                 default: ngStartPlayer = 1; // Should never happen.
             }
             ui = new ConnectGameUI(ngGameMode, ngStartPlayer);
-            initGameScreen(allowUndoCheckBox.isSelected());
+            initGameScreen(allowUndoCheckBox.isSelected()); // Read the undo move? checkbox and init game screen
             if (!ui.isPlayersTurn()) {
                 Thread compMove = new ComputerMove();
                 compMove.start();
@@ -724,6 +750,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
             } else {
                 thisComponent.setText(FX_OFF);
             }
+            playSound(CLICK_SOUND_1);
         }
     }
 
