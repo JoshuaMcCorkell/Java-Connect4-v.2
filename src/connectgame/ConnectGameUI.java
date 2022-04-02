@@ -23,7 +23,8 @@ public class ConnectGameUI {
         PLAYER_V_COMPUTER
     }
 
-    private int defaultSpaceSize = 50;
+    private int defaultSpaceSize = 50; // The size of the spaces on the gui.Currently, all the 
+                                       // other constants about the space size are hard coded.
     
     private ConnectGame game;
     private int playerDisk;
@@ -203,7 +204,28 @@ public class ConnectGameUI {
     }
 
     /**
-     * Plays the computer's move IF legal andg it is the computer's turn.
+     * Returns, if applicable, the column that the player's mouse is currently in. 
+     * returns -1 if the player's mouse is NOT in a LEGAL column, or if it is NOT the 
+     * player's turn at the moment.
+     * @param mouseEvent  The mouse event (usually will be forwarded from a mouseMoved method)
+     * @return  A column number in the current game, or -1.
+     */
+    public int playerMouseCurrentColumn(MouseEvent mouseEvent) {
+        int mouseColumn = (mouseEvent.getX() - 18) / defaultSpaceSize;
+        if (
+            mouseColumn >= 0 && 
+            mouseColumn < game.columns() && 
+            getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows()
+        ) {
+            assert(getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows());
+            return mouseColumn;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Plays the computer's move IF legal and it is the computer's turn.
      * Should be run in a separate thread.
      * @return  Whether a move was played.
      */

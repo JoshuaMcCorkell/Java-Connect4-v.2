@@ -72,7 +72,9 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
         new ImageIcon("images/Blank.png"), // Blank spot (0)
         new ImageIcon("images/Red.png"), // 'Red' (1)
         new ImageIcon("images/Yellow.png"), // 'Yellow' (2)
-        new ImageIcon("images/Blank.png") // This is the icon to display in case of a draw
+        new ImageIcon("images/Blank.png"), // This is the icon to display in case of a draw
+        new ImageIcon("images/Faded Red.png"), // The red icon for potential moves
+        new ImageIcon("images/Faded Yellow.png") // The yellow icon for potential moves
     };
     private static final String[] PLAYER = {"Error", "Red", "Yellow"};
     private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
@@ -105,6 +107,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
     //Game Screen
     private JLabel[][] board;  
     private JLabel turnLabel;
+    private int currentShadedColumn;
     //New Game Screen
     private ButtonGroup gameModeSelect; 
     private ButtonGroup startPlayerSelect;
@@ -453,6 +456,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
      */
     public synchronized void start() {
         frame.addMouseListener(this);
+        frame.addMouseMotionListener(this);
         frame.setVisible(true);
     }
 
@@ -543,6 +547,30 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
                 computerMoveThread.start(); 
             }
         }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent mouseEvent) {
+        if (ui != null && currentScreen == Screen.GAME_SCREEN) {
+            if (!ui.isPlayersTurn()) {
+                currentShadedColumn = -1;
+                return;
+            }
+            int mouseColumn = ui.playerMouseCurrentColumn(mouseEvent);
+            if (mouseColumn == currentShadedColumn) {
+                return;
+            }
+            if (currentShadedColumn != -1 && ui.getGameBoard().getNextDiskIndices()[currentShadedColumn] < ui.gameRows()) {
+                board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
+                    .setIcon(DISK_ICONS[GameBoard.BLANK]);
+                currentShadedColumn = -1;
+            }
+            currentShadedColumn = mouseColumn;
+            if (currentShadedColumn != -1) {
+                board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
+                    .setIcon(DISK_ICONS[ui.getGame().currentTurn() + 3]);
+            }
+        } 
     }
 
     /**
