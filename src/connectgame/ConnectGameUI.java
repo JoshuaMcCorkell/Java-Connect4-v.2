@@ -173,7 +173,7 @@ public class ConnectGameUI {
         }
         if (currentMode == GameMode.PLAYER_V_RANDOM) {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;

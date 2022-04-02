@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.MouseInfo;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
@@ -39,7 +39,7 @@ import connectgame.engine.GameBoard;
  * however, to another ConnectGame, although there are some things that would need to 
  * be altered.
  */
-public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix not working, last line of screen init.
+public class GUI extends MouseAdapter {
     
     /**
      * This is an enum for all the different possible screens for the GUI
@@ -542,7 +542,7 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
             int action = movePlayed();
             if (action == 0) {
                 // Start the computer move thread. This will end immediately 
-                // If it is not the computer's turn, so this is safe.
+                // if it is not the computer's turn, so this is safe.
                 computerMoveThread = new ComputerMove();
                 computerMoveThread.start(); 
             }
@@ -551,24 +551,25 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        if (ui != null && currentScreen == Screen.GAME_SCREEN) {
-            if (!ui.isPlayersTurn()) {
-                currentShadedColumn = -1;
+        // This method manages the shading of the space that the user will potentialy play on, if they 
+        // click right now. See also the end of the ComputerMove Thread for the other code that affects this.
+        if (ui != null && currentScreen == Screen.GAME_SCREEN) { // Make sure we're on the game screen
+            if (!ui.isPlayersTurn() || ui.isDone()) { 
+                currentShadedColumn = -1; // If it's not the player's turn, or the game is over, do nothing
                 return;
             }
             int mouseColumn = ui.playerMouseCurrentColumn(mouseEvent);
             if (mouseColumn == currentShadedColumn) {
-                return;
+                return; // If the column is already shaded, do nothing
             }
             if (currentShadedColumn != -1 && ui.getGameBoard().getNextDiskIndices()[currentShadedColumn] < ui.gameRows()) {
                 board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
-                    .setIcon(DISK_ICONS[GameBoard.BLANK]);
-                currentShadedColumn = -1;
+                    .setIcon(DISK_ICONS[GameBoard.BLANK]); // Blank out the previous column the mouse was in
             }
             currentShadedColumn = mouseColumn;
             if (currentShadedColumn != -1) {
                 board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
-                    .setIcon(DISK_ICONS[ui.getGame().currentTurn() + 3]);
+                    .setIcon(DISK_ICONS[ui.getGame().currentTurn() + 3]); // Shade the current column the mouse is in
             }
         } 
     }
@@ -587,7 +588,16 @@ public class GUI extends MouseAdapter {  // TODO fix focus issues. current fix n
                 playSound(MOVE_PLAYED_SOUND);
                 updateGameScreen();
                 movePlayed();
-            }     
+            }
+            // Trigger a mouse event, so that the column disk shading works.
+            // The only relevant fields in the mouse event are the x and y currently.
+            // (currently only the x is used, in fact.) 
+            currentShadedColumn = -1;
+            mouseMoved(new MouseEvent(frame, 0, 0, 0, 
+                MouseInfo.getPointerInfo().getLocation().x, 
+                MouseInfo.getPointerInfo().getLocation().y, 
+                1, false
+            ));
         }
     }
 
