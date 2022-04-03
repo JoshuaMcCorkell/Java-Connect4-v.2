@@ -1,7 +1,7 @@
 package connectgame.engine;
 
-import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class Connect4 implements ConnectGame {

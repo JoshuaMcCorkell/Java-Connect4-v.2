@@ -306,7 +306,7 @@ public class GUI extends MouseAdapter {
         startPlayerSelect.add(redStartSelect);
         startPlayerSelect.add(yellowStartSelect);
 
-        allowUndoCheckBox = new JCheckBox("Allow Undo?", true); // Allow undo?
+        allowUndoCheckBox = new JCheckBox("Allow Undo?", false); // Allow undo? default false.
         allowUndoCheckBox.setFont(LABEL_FONT);
         allowUndoCheckBox.setBounds(50, y + 175, 150, 40);
 
@@ -530,7 +530,7 @@ public class GUI extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
         if (currentScreen == Screen.GAME_SCREEN) { 
-            if (computerMoveThread != null && computerMoveThread.isAlive()) {
+            if (computerMoveThread != null && (!computerMoveThread.isInterrupted() && computerMoveThread.isAlive())) {
                 // UI is currently handling a click
                 return;
             }
@@ -554,8 +554,11 @@ public class GUI extends MouseAdapter {
         // This method manages the shading of the space that the user will potentialy play on, if they 
         // click right now. See also the end of the ComputerMove Thread for the other code that affects this.
         if (ui != null && currentScreen == Screen.GAME_SCREEN) { // Make sure we're on the game screen
-            if (!ui.isPlayersTurn() || ui.isDone()) { 
-                currentShadedColumn = -1; // If it's not the player's turn, or the game is over, do nothing
+            if (!ui.isPlayersTurn() || ui.isDone() || 
+                (computerMoveThread != null && computerMoveThread.isAlive() && computerMoveThread.isInterrupted())
+            ) { 
+                currentShadedColumn = -1; // If it's not the player's turn, or the game is over, or the 
+                                          // computer move thread is currently waiting to stop, do nothing.
                 return;
             }
             int mouseColumn = ui.playerMouseCurrentColumn(mouseEvent);
@@ -627,20 +630,27 @@ public class GUI extends MouseAdapter {
                         ui.undoLast();
                     }
                 } else {
-                    // This makes sure the correct action is taken, and the game ends on 
-                    // the player's turn, and the computermove thread is interrupted properly.
+                    // Interrupts the computer thread so the computer won't play it's move.
                     computerMoveThread.interrupt();
                     ui.undoLast();
+                }
+            }
+            Thread t = new Thread() {
+                // This makes sure the computer thread ends before updating the screen
+                // and playing the click sound.
+                @Override 
+                public void run() {
                     try {
                         computerMoveThread.join();
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
                         return;
                     }
+                    playSound(CLICK_SOUND_1);
+                    updateGameScreen(); 
                 }
-            }
-            playSound(CLICK_SOUND_1);
-            updateGameScreen(); 
+            }; t.start();
+            
         }
     }
 
