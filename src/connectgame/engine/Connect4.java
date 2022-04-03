@@ -158,6 +158,10 @@ public class Connect4 implements ConnectGame {
                 maxEval = (eval > maxEval)? eval : maxEval;
                 alpha = (alpha > eval)? alpha : eval;
                 current.popDisk(columnMove);
+                if (Thread.interrupted()) {
+                    Thread.currentThread().interrupt();
+                    return -1;
+                }
                 if (beta <= alpha) { // Alpha-beta pruning
                     broke = true;
                     break;
@@ -176,6 +180,10 @@ public class Connect4 implements ConnectGame {
                 minEval = (eval < minEval)? eval : minEval;
                 beta = (beta < eval)? beta : eval;
                 current.popDisk(columnMove);
+                if (Thread.interrupted()) {
+                    Thread.currentThread().interrupt();
+                    return -1;
+                }
                 if (beta <= alpha) {
                     broke = true;
                     break;
@@ -209,7 +217,7 @@ public class Connect4 implements ConnectGame {
         long endTime = System.nanoTime();
         if (!Thread.interrupted()) { // Make sure the thread is still meant to be active before playing...
             compPlayStack.push(new Play(currentTurn, bestPlay)); // This is so the depth can be backtracked
-            depthStack.push(depth);                              // after a move is undone.
+            depthStack.push(depth);                              //  after a move is undone.
             play(bestPlay);
             // Adjust the depth for next time so the computer does basically the maximum
             // depth it can without overloading the computer.

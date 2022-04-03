@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.Timer;
 
 import connectgame.ConnectGameUI.GameMode;
 import connectgame.engine.GameBoard;
@@ -102,12 +103,16 @@ public class GUI extends MouseAdapter {
     private boolean soundFXToggle = true;
     private JFrame frame;
     private JPanel[] panels;
+    private Timer thinkingFlicker;
     
     //Components that need to be accessed by multiple methods:
     //Game Screen
     private JLabel[][] board;  
     private JLabel turnLabel;
     private int currentShadedColumn;
+    private JLabel undoWarning;
+    private static final String THINKING1 = "Thinking...";
+    private static final String THINKING2 = "Thinking..";
     //New Game Screen
     private ButtonGroup gameModeSelect; 
     private ButtonGroup startPlayerSelect;
@@ -140,6 +145,8 @@ public class GUI extends MouseAdapter {
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle(TITLE);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        thinkingFlicker = new Timer(400, new ThinkingUpdater()); // Set the thinking flicker timer.
 
         setCurrentScreen(Screen.START_SCREEN); // Start on the start screen.
     }
@@ -200,6 +207,11 @@ public class GUI extends MouseAdapter {
             undoButton.setFont(LABEL_FONT);
             undoButton.addActionListener(new UndoMoveButtonListener());
             panels[panelNo].add(undoButton);
+
+            undoWarning = new JLabel();
+            undoWarning.setBounds(ui.gameColumns() * 50 + 30, ui.gameRows() * DISK_SIZE - 15, 350, 40);
+            undoWarning.setFont(LABEL_FONT);
+            panels[panelNo].add(undoWarning);
         }
 
         JButton helpButton = new JButton("Help"); // Help Button
@@ -288,7 +300,7 @@ public class GUI extends MouseAdapter {
         startSelectTitle.setBounds(265, y, 350, 40);
         startSelectTitle.setFont(SUBTITLE_FONT);
         
-        randomStartSelect = new JRadioButton("Random", true); // Default
+        randomStartSelect = new JRadioButton("Random Colour", true); // Default
         randomStartSelect.setBounds(265, y + 40, 250, 40);
         randomStartSelect.setFont(LABEL_FONT);
         randomStartSelect.setActionCommand("random");
@@ -403,7 +415,7 @@ public class GUI extends MouseAdapter {
                 turnLabel.setText("Your Turn...");
                 turnLabel.setForeground(PLAYER_COLORS[ui.getPlayerDisk()]);
             } else {
-                turnLabel.setText("Thinking...");
+                turnLabel.setText(THINKING1);
                 turnLabel.setForeground(PLAYER_COLORS[3 - ui.getPlayerDisk()]);
             }
         }
@@ -458,6 +470,7 @@ public class GUI extends MouseAdapter {
         frame.addMouseListener(this);
         frame.addMouseMotionListener(this);
         frame.setVisible(true);
+        thinkingFlicker.start();
     }
 
     /**
@@ -609,9 +622,25 @@ public class GUI extends MouseAdapter {
      * <p>ActionListener for the Undo Button. Undoes the last move/s.
      * If the mode is player v player, undoes the last move.
      * If the mode is player v random or computer, undoes until the time it was the player's turn and 
-     * interrupts the computerMoveThread if active.
+     * interrupts the computerMoveThread if active, making sure it ends properly before the GUI updates.
      */
     private class UndoMoveButtonListener implements ActionListener {
+        /**
+         * Warns the user that no more moves can be undone.
+         */
+        private void doUndoWarning() { // TODO: make sure there aren't more than1 undowarningtimer, fix issues, etc.
+            undoWarning.setText("<html>You can't undo <br>any more moves!");
+            undoWarning.setFont(undoWarning.getFont());
+            Timer undoWarningTimer = new Timer(1200, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    undoWarning.setText("");
+                }
+            });
+            undoWarningTimer.setRepeats(false);
+            undoWarningTimer.start();
+        }
+
         @Override
         public void actionPerformed(ActionEvent e) {
             if (ui.isDone()) { 
@@ -620,7 +649,11 @@ public class GUI extends MouseAdapter {
             }
             if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
                 // If the mode is player v player, undo 1 move
-                ui.undoLast();
+                if (!ui.getGame().getPlayStack().isEmpty()) {
+                    ui.undoLast();
+                } else {
+                    doUndoWarning();
+                }
             } else {
                 if (ui.isPlayersTurn()) {
                     if (ui.getGame().getPlayStack().size() > 1) {
@@ -628,6 +661,8 @@ public class GUI extends MouseAdapter {
                         // and mode is player v computer (or random), undo 2 moves.
                         ui.undoLast();
                         ui.undoLast();
+                    } else {
+                        doUndoWarning();
                     }
                 } else {
                     // Interrupts the computer thread so the computer won't play it's move.
@@ -641,7 +676,9 @@ public class GUI extends MouseAdapter {
                 @Override 
                 public void run() {
                     try {
-                        computerMoveThread.join();
+                        if (computerMoveThread != null) {
+                            computerMoveThread.join();
+                        }
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
                         return;
@@ -650,7 +687,6 @@ public class GUI extends MouseAdapter {
                     updateGameScreen(); 
                 }
             }; t.start();
-            
         }
     }
 
@@ -663,6 +699,13 @@ public class GUI extends MouseAdapter {
         @Override
         public void actionPerformed(ActionEvent e) {
             playSound(CLICK_SOUND_1);
+            boolean interruptedComputerMove = false;
+            String turnLabelText = turnLabel.getText();
+            turnLabel.setText("");
+            if (computerMoveThread != null && computerMoveThread.isAlive() && !computerMoveThread.isInterrupted()) {
+                interruptedComputerMove = true;
+                computerMoveThread.interrupt();
+            }
             int newGameConfirmation = JOptionPane.showConfirmDialog( // Confirm the user wants to end the current game
                 frame,
                 "Are you sure? The contents the the current game will be discarded!",
@@ -671,12 +714,14 @@ public class GUI extends MouseAdapter {
                 JOptionPane.WARNING_MESSAGE
             );
             if (newGameConfirmation == JOptionPane.OK_OPTION) {
-                if (computerMoveThread != null) {
-                    computerMoveThread.interrupt();
-                }
                 newGame();
             } else {
                 playSound(CLICK_SOUND_1);
+                turnLabel.setText(turnLabelText);
+                if (interruptedComputerMove) {
+                    computerMoveThread = new ComputerMove();
+                    computerMoveThread.start(); 
+                }
             }
         }
     }
@@ -799,6 +844,23 @@ public class GUI extends MouseAdapter {
                 thisComponent.setText(FX_OFF);
             }
             playSound(CLICK_SOUND_1);
+        }
+    }
+
+    /**
+     * This is an action listener for the thinking label, so the dots flash, therefore making it 
+     * look active during the thinking. 
+     */
+    private class ThinkingUpdater implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentScreen == Screen.GAME_SCREEN) {
+                if (turnLabel.getText().equals(THINKING1)) {
+                    turnLabel.setText(THINKING2);
+                } else if (turnLabel.getText().equals(THINKING2)) {
+                    turnLabel.setText(THINKING1);
+                }
+            }
         }
     }
 

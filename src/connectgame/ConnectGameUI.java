@@ -165,7 +165,6 @@ public class ConnectGameUI {
 
     /**
      * Plays a random or computer move based on the current mode. 
-     * @throws InterruptedException
      */
     public void playAuto() {
         if (game.getWinner() == 3) {
