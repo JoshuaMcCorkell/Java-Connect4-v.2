@@ -74,8 +74,8 @@ public class GUI extends MouseAdapter {
         new ImageIcon("images/Red.png"), // 'Red' (1)
         new ImageIcon("images/Yellow.png"), // 'Yellow' (2)
         new ImageIcon("images/Blank.png"), // This is the icon to display in case of a draw
-        new ImageIcon("images/Faded Red.png"), // The red icon for potential moves
-        new ImageIcon("images/Faded Yellow.png") // The yellow icon for potential moves
+        new ImageIcon("images/Red Ring.png"), // The red icon for potential moves
+        new ImageIcon("images/Yellow Ring.png") // The yellow icon for potential moves
     };
     private static final String[] PLAYER = {"Error", "Red", "Yellow"};
     private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
@@ -325,7 +325,7 @@ public class GUI extends MouseAdapter {
         JButton startGameButton = new JButton("Start Game!"); // Start button
         startGameButton.setBounds(120, y + 240, 200, 40);
         startGameButton.setFont(SUBTITLE_FONT);
-        startGameButton.addActionListener(new NewGameButtonListener());
+        startGameButton.addActionListener(new StartNewGameButtonListener());
 
         JButton helpButton = new JButton("Help"); // Help Button
         helpButton.addActionListener(new HelpButtonListener());
@@ -625,20 +625,61 @@ public class GUI extends MouseAdapter {
      * interrupts the computerMoveThread if active, making sure it ends properly before the GUI updates.
      */
     private class UndoMoveButtonListener implements ActionListener {
-        /**
-         * Warns the user that no more moves can be undone.
-         */
-        private void doUndoWarning() { // TODO: make sure there aren't more than1 undowarningtimer, fix issues, etc.
-            undoWarning.setText("<html>You can't undo <br>any more moves!");
-            undoWarning.setFont(undoWarning.getFont());
-            Timer undoWarningTimer = new Timer(1200, new ActionListener() {
-                @Override
+
+        private Timer undoWarningTimer = new Timer(1000, new ActionListener() {
+            @Override
                 public void actionPerformed(ActionEvent e) {
                     undoWarning.setText("");
                 }
-            });
+        });
+
+        public UndoMoveButtonListener() {
             undoWarningTimer.setRepeats(false);
-            undoWarningTimer.start();
+        }
+
+        /**
+         * Warns the user that no more moves can be undone.
+         */
+        private void doUndoWarning() {
+            undoWarning.setText("No more moves to undo");
+            undoWarningTimer.restart();
+        }
+
+        /**
+         * Undoes a move in player v player mode.
+         */
+        private void undoPlayerVPlayer() {
+            // If the mode is player v player, undo 1 move
+            if (!ui.getGame().getPlayStack().isEmpty()) {
+                ui.undoLast();
+            } else {
+                doUndoWarning();
+            }
+        }
+
+        /**
+         * Undoes a move in player v computer or random mode.
+         */
+        private void undoPlayerVComputer() {
+            if (ui.isPlayersTurn()) {
+                if (ui.getGame().getPlayStack().size() > 1) {
+                    // If there are at least 2 moves to undo, it is player's turn
+                    // and mode is player v computer (or random), undo 2 moves.
+                    ui.undoLast();
+                    ui.undoLast();
+                } else {
+                    doUndoWarning();
+                }
+            } else {
+                // Interrupts the computer thread so the computer won't play it's move.
+                computerMoveThread.interrupt();
+                ui.undoLast();
+                try {
+                    computerMoveThread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         @Override
@@ -648,45 +689,12 @@ public class GUI extends MouseAdapter {
                 return;
             }
             if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
-                // If the mode is player v player, undo 1 move
-                if (!ui.getGame().getPlayStack().isEmpty()) {
-                    ui.undoLast();
-                } else {
-                    doUndoWarning();
-                }
+                undoPlayerVPlayer();
             } else {
-                if (ui.isPlayersTurn()) {
-                    if (ui.getGame().getPlayStack().size() > 1) {
-                        // If there are at least 2 moves to undo, it is player's turn
-                        // and mode is player v computer (or random), undo 2 moves.
-                        ui.undoLast();
-                        ui.undoLast();
-                    } else {
-                        doUndoWarning();
-                    }
-                } else {
-                    // Interrupts the computer thread so the computer won't play it's move.
-                    computerMoveThread.interrupt();
-                    ui.undoLast();
-                }
+                undoPlayerVComputer();
             }
-            Thread t = new Thread() {
-                // This makes sure the computer thread ends before updating the screen
-                // and playing the click sound.
-                @Override 
-                public void run() {
-                    try {
-                        if (computerMoveThread != null) {
-                            computerMoveThread.join();
-                        }
-                    } catch (InterruptedException e1) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                    playSound(CLICK_SOUND_1);
-                    updateGameScreen(); 
-                }
-            }; t.start();
+            playSound(CLICK_SOUND_1);
+            updateGameScreen();
         }
     }
 
@@ -742,7 +750,7 @@ public class GUI extends MouseAdapter {
      * <p>Starts a new game (ui) and initializes the game screen based on 
      * the current selections in the gameModeSelect and startPlayerSelect button groups.
      */
-    private class NewGameButtonListener implements ActionListener {
+    private class StartNewGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             ConnectGameUI.GameMode ngGameMode;
