@@ -72,7 +72,6 @@ public class Connect4 implements ConnectGame {
                 // and that move is undone, the next move needs to be done with 11 depth.
                 compPlayStack.pop();
                 depth = depthStack.pop();
-                System.out.println("Pop: " + depth);
             }
             currentTurn = (currentTurn == RED)? YELLOW : RED;
             return true;
@@ -196,6 +195,7 @@ public class Connect4 implements ConnectGame {
         int bestPlay = -2;
         for (int columnMove : current.getLegal()) {
             if (Thread.interrupted()) {
+                Thread.currentThread().interrupt();
                 return; // Check the thread is still meant to be active
             }
             current.putDisk(currentTurn, columnMove);
