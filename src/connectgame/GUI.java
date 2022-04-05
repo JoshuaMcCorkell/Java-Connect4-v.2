@@ -145,6 +145,7 @@ public class GUI extends MouseAdapter {
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle(TITLE);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setResizable(false);
 
         thinkingFlicker = new Timer(400, new ThinkingUpdater()); // Set the thinking flicker timer.
 
