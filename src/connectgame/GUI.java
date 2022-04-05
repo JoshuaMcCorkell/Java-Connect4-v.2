@@ -144,6 +144,8 @@ public class GUI extends MouseAdapter {
         
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle(TITLE);
+        ImageIcon icon = new ImageIcon("images/Icon.png");
+        frame.setIconImage(icon.getImage());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
