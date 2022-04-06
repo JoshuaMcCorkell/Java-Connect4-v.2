@@ -70,12 +70,12 @@ public class GUI extends MouseAdapter {
     // Important constants for rendering, describing disks etc.
     private static final int DISK_SIZE = 50;
     private static final ImageIcon[] DISK_ICONS = {
-        new ImageIcon("images/Blank.png"), // Blank spot (0)
-        new ImageIcon("images/Red.png"), // 'Red' (1)
-        new ImageIcon("images/Yellow.png"), // 'Yellow' (2)
-        new ImageIcon("images/Blank.png"), // This is the icon to display in case of a draw
-        new ImageIcon("images/Red Ring.png"), // The red icon for potential moves
-        new ImageIcon("images/Yellow Ring.png") // The yellow icon for potential moves
+        new ImageIcon("connect4/images/Blank.png"), // Blank spot (0)
+        new ImageIcon("connect4/images/Red.png"), // 'Red' (1)
+        new ImageIcon("connect4/images/Yellow.png"), // 'Yellow' (2)
+        new ImageIcon("connect4/images/Blank.png"), // This is the icon to display in case of a draw
+        new ImageIcon("connect4/images/Red Ring.png"), // The red icon for potential moves
+        new ImageIcon("connect4/images/Yellow Ring.png") // The yellow icon for potential moves
     };
     private static final String[] PLAYER = {"Error", "Red", "Yellow"};
     private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
@@ -89,8 +89,8 @@ public class GUI extends MouseAdapter {
     private static final String NEW_GAME_STRING = "New Game";
 
     // Sounds
-    private static final File CLICK_SOUND_1 = new File("sounds/Click Sound 1.wav"); 
-    private static final File MOVE_PLAYED_SOUND = new File("sounds/Move Played Sound.wav");
+    private static final File CLICK_SOUND_1 = new File("connect4/sounds/Click Sound 1.wav"); 
+    private static final File MOVE_PLAYED_SOUND = new File("connect4/sounds/Move Played Sound.wav");
     private static final String FX_ON = "FX: On";
     private static final String FX_OFF = "FX: Off";
 
@@ -144,7 +144,7 @@ public class GUI extends MouseAdapter {
         
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle(TITLE);
-        ImageIcon icon = new ImageIcon("images/Icon.png");
+        ImageIcon icon = new ImageIcon("connect4/images/Icon.png");
         frame.setIconImage(icon.getImage());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setResizable(false);
