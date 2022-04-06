@@ -14,7 +14,7 @@ import connectgame.engine.GameBoard;
 public class ConnectGameUI {
 
     /**
-     * All the different Game Modes that are currently supported by 
+     * All the different Game Modes that are currently supported by
      * this class and the GUI class.
      */
     public enum GameMode {
@@ -23,17 +23,18 @@ public class ConnectGameUI {
         PLAYER_V_COMPUTER
     }
 
-    private int defaultSpaceSize = 50; // The size of the spaces on the gui.Currently, all the 
+    private int defaultSpaceSize = 50; // The size of the spaces on the gui.Currently, all the
                                        // other constants about the space size are hard coded.
-    
+
     private ConnectGame game;
     private int playerDisk;
     private GameMode currentMode;
 
     private boolean isDone = false;
-    
+
     /**
-     * Constructs a new ConnectGameUI object with a new Connect4 game, and the mode player v player.
+     * Constructs a new ConnectGameUI object with a new Connect4 game, and the mode
+     * player v player.
      */
     public ConnectGameUI() {
         this.game = new Connect4();
@@ -42,10 +43,12 @@ public class ConnectGameUI {
 
     /**
      * Constructs a new ConnectGameUI object with a new Connect4 game.
-     * @param mode  The game mode for this ui
-     * @param playerDisk  The disk for the player to start with. If the mode is 
-     * player v player, this paramter is ignored, so use the constructor ConnectGameUI()
-     * which has the default mode as player v player.
+     * 
+     * @param mode       The game mode for this ui
+     * @param playerDisk The disk for the player to start with. If the mode is
+     *                   player v player, this paramter is ignored, so use the
+     *                   constructor ConnectGameUI()
+     *                   which has the default mode as player v player.
      */
     public ConnectGameUI(GameMode mode, int playerDisk) {
         this.game = new Connect4();
@@ -55,9 +58,10 @@ public class ConnectGameUI {
 
     /**
      * Constructs a new ConnectGameUI object with the given ConnectGame and mode.
-     * @param game  The game to use.
-     * @param mode  The game mode for this ui.
-     * @param playerDisk  The disk that the player will use. 
+     * 
+     * @param game       The game to use.
+     * @param mode       The game mode for this ui.
+     * @param playerDisk The disk that the player will use.
      */
     public ConnectGameUI(ConnectGame game, GameMode mode, int playerDisk) {
         this.game = game;
@@ -66,7 +70,7 @@ public class ConnectGameUI {
     }
 
     /**
-     * Returns whether it is the player's turn in the current position. 
+     * Returns whether it is the player's turn in the current position.
      */
     public boolean isPlayersTurn() {
         if (currentMode == GameMode.PLAYER_V_PLAYER) {
@@ -74,7 +78,7 @@ public class ConnectGameUI {
         } else {
             return playerDisk == game.currentTurn();
         }
-    }  
+    }
 
     /**
      * Returns the players disk in the current Game.
@@ -85,7 +89,7 @@ public class ConnectGameUI {
 
     /**
      * Returns the current game (ConnectGame Object).
-     * Note that mutating this might not necessarily be thread safe. 
+     * Note that mutating this might not necessarily be thread safe.
      */
     public ConnectGame getGame() {
         return game;
@@ -93,7 +97,7 @@ public class ConnectGameUI {
 
     /**
      * Returns the GameBoard of the current ConnectGame.
-     * Note that mutating this might not necessarily be thread safe. 
+     * Note that mutating this might not necessarily be thread safe.
      */
     public GameBoard getGameBoard() {
         return game.getGameBoard();
@@ -114,7 +118,7 @@ public class ConnectGameUI {
     }
 
     /**
-     * Returns the winner of the current game. (RED or YELLOW (1 or 2), 3 if 
+     * Returns the winner of the current game. (RED or YELLOW (1 or 2), 3 if
      * the game ended in a draw, 0 if game is ongoing.)
      */
     public int getWinner() {
@@ -127,7 +131,7 @@ public class ConnectGameUI {
     public GameMode getMode() {
         return currentMode;
     }
-    
+
     /**
      * Sets the isDone boolean to true.
      */
@@ -143,19 +147,20 @@ public class ConnectGameUI {
     }
 
     /**
-     * Use this method to set the size of the disks (Spaces) on the gameboard. 
+     * Use this method to set the size of the disks (Spaces) on the gameboard.
      * This property is by default set to 50.
-     * @param spaceSize  The new space size. Must be higher than 0.
-     * @throws IllegalArgumentException  if spaceSize <= 0.
+     * 
+     * @param spaceSize The new space size. Must be higher than 0.
+     * @throws IllegalArgumentException if spaceSize <= 0.
      */
     public void setDefaultSpaceSize(int spaceSize) {
         if (spaceSize > 0) {
             defaultSpaceSize = spaceSize;
         } else {
             throw new IllegalArgumentException("The space size property of a ConnectGameUI must be greater than 0.");
-        }        
+        }
     }
-    
+
     /**
      * Undoes the last move of the game.
      */
@@ -164,7 +169,7 @@ public class ConnectGameUI {
     }
 
     /**
-     * Plays a random or computer move based on the current mode. 
+     * Plays a random or computer move based on the current mode.
      */
     public void playAuto() {
         if (game.getWinner() == 3) {
@@ -182,12 +187,16 @@ public class ConnectGameUI {
             game.playComputer();
         }
     }
-    
+
     /**
-     * This is an event handler for a MouseEvent from a GUI using this ConnectGameUI.
-     * All it does is play a move based on the current click, if legal and it is the player's turn. 
-     * @param mouseEvent  The mouse event. The only properties used are the X and Y values.
-     * @return  Whether a move was played.
+     * This is an event handler for a MouseEvent from a GUI using this
+     * ConnectGameUI.
+     * All it does is play a move based on the current click, if legal and it is the
+     * player's turn.
+     * 
+     * @param mouseEvent The mouse event. The only properties used are the X and Y
+     *                   values.
+     * @return Whether a move was played.
      */
     public boolean playerMousePressed(MouseEvent mouseEvent) {
         if (isPlayersTurn() && game.getWinner() == 0) { // If it is the player's turn, play their move.
@@ -203,20 +212,21 @@ public class ConnectGameUI {
     }
 
     /**
-     * Returns, if applicable, the column that the player's mouse is currently in. 
-     * returns -1 if the player's mouse is NOT in a LEGAL column, or if it is NOT the 
+     * Returns, if applicable, the column that the player's mouse is currently in.
+     * returns -1 if the player's mouse is NOT in a LEGAL column, or if it is NOT
+     * the
      * player's turn at the moment.
-     * @param mouseEvent  The mouse event (usually will be forwarded from a mouseMoved method)
-     * @return  A column number in the current game, or -1.
+     * 
+     * @param mouseEvent The mouse event (usually will be forwarded from a
+     *                   mouseMoved method)
+     * @return A column number in the current game, or -1.
      */
     public int playerMouseCurrentColumn(MouseEvent mouseEvent) {
         int mouseColumn = (mouseEvent.getX() - 18) / defaultSpaceSize;
-        if (
-            mouseColumn >= 0 && 
-            mouseColumn < game.columns() && 
-            getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows()
-        ) {
-            assert(getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows());
+        if (mouseColumn >= 0 &&
+                mouseColumn < game.columns() &&
+                getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows()) {
+            assert (getGameBoard().getNextDiskIndices()[mouseColumn] < game.rows());
             return mouseColumn;
         } else {
             return -1;
@@ -226,11 +236,12 @@ public class ConnectGameUI {
     /**
      * Plays the computer's move IF legal and it is the computer's turn.
      * Should be run in a separate thread.
-     * @return  Whether a move was played.
+     * 
+     * @return Whether a move was played.
      */
     public boolean computerTurn() {
-        if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) { 
-            // If it is now the computer's turn and the game is not over, play their move. 
+        if (currentMode != GameMode.PLAYER_V_PLAYER && !isPlayersTurn() && game.getWinner() == 0) {
+            // If it is now the computer's turn and the game is not over, play their move.
             playAuto();
             return true;
         }

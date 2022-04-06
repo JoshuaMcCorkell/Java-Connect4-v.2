@@ -35,21 +35,25 @@ import connectgame.ConnectGameUI.GameMode;
 import connectgame.engine.GameBoard;
 
 /**
- * <h4>GUI<h4>
- * This is a class that creates and runs a Connect 4 GUI. It is possible to adapt this,
- * however, to another ConnectGame, although there are some things that would need to 
+ * <h4>GUI
+ * <h4>
+ * This is a class that creates and runs a Connect 4 GUI. It is possible to
+ * adapt this,
+ * however, to another ConnectGame, although there are some things that would
+ * need to
  * be altered.
  */
 public class GUI extends MouseAdapter {
-    
+
     /**
      * This is an enum for all the different possible screens for the GUI
-     * to be currently on. Each enum value has a number associated with it 
-     * that is its position in the panel array. it can be accessed by 
+     * to be currently on. Each enum value has a number associated with it
+     * that is its position in the panel array. it can be accessed by
      * ENUM_VALUE.panelArrayPosition()
-     * @implNote  For future implementations, implement each enum value with
-     * an actual panel, instead of just an array position. This would be a 
-     * LOT easier to work with.
+     * 
+     * @implNote For future implementations, implement each enum value with
+     *           an actual panel, instead of just an array position. This would be a
+     *           LOT easier to work with.
      */
     public enum Screen {
         GAME_SCREEN(0),
@@ -70,15 +74,15 @@ public class GUI extends MouseAdapter {
     // Important constants for rendering, describing disks etc.
     private static final int DISK_SIZE = 50;
     private static final ImageIcon[] DISK_ICONS = {
-        new ImageIcon("connect4/images/Blank.png"), // Blank spot (0)
-        new ImageIcon("connect4/images/Red.png"), // 'Red' (1)
-        new ImageIcon("connect4/images/Yellow.png"), // 'Yellow' (2)
-        new ImageIcon("connect4/images/Blank.png"), // This is the icon to display in case of a draw
-        new ImageIcon("connect4/images/Red Ring.png"), // The red icon for potential moves
-        new ImageIcon("connect4/images/Yellow Ring.png") // The yellow icon for potential moves
+            new ImageIcon("connect4/images/Blank.png"), // Blank spot (0)
+            new ImageIcon("connect4/images/Red.png"), // 'Red' (1)
+            new ImageIcon("connect4/images/Yellow.png"), // 'Yellow' (2)
+            new ImageIcon("connect4/images/Blank.png"), // This is the icon to display in case of a draw
+            new ImageIcon("connect4/images/Red Ring.png"), // The red icon for potential moves
+            new ImageIcon("connect4/images/Yellow Ring.png") // The yellow icon for potential moves
     };
-    private static final String[] PLAYER = {"Error", "Red", "Yellow"};
-    private static final Color[] PLAYER_COLORS = {Color.DARK_GRAY, Color.RED, Color.ORANGE};
+    private static final String[] PLAYER = { "Error", "Red", "Yellow" };
+    private static final Color[] PLAYER_COLORS = { Color.DARK_GRAY, Color.RED, Color.ORANGE };
     private static final String TITLE = "Connect 4";
 
     // Fonts
@@ -89,7 +93,7 @@ public class GUI extends MouseAdapter {
     private static final String NEW_GAME_STRING = "New Game";
 
     // Sounds
-    private static final File CLICK_SOUND_1 = new File("connect4/sounds/Click Sound 1.wav"); 
+    private static final File CLICK_SOUND_1 = new File("connect4/sounds/Click Sound 1.wav");
     private static final File MOVE_PLAYED_SOUND = new File("connect4/sounds/Move Played Sound.wav");
     private static final String FX_ON = "FX: On";
     private static final String FX_OFF = "FX: Off";
@@ -104,17 +108,17 @@ public class GUI extends MouseAdapter {
     private JFrame frame;
     private JPanel[] panels;
     private Timer thinkingFlicker;
-    
-    //Components that need to be accessed by multiple methods:
-    //Game Screen
-    private JLabel[][] board;  
+
+    // Components that need to be accessed by multiple methods:
+    // Game Screen
+    private JLabel[][] board;
     private JLabel turnLabel;
     private int currentShadedColumn;
     private JLabel undoWarning;
     private static final String THINKING1 = "Thinking...";
     private static final String THINKING2 = "Thinking..";
-    //New Game Screen
-    private ButtonGroup gameModeSelect; 
+    // New Game Screen
+    private ButtonGroup gameModeSelect;
     private ButtonGroup startPlayerSelect;
     private JLabel startSelectTitle;
     private JRadioButton randomStartSelect;
@@ -122,14 +126,14 @@ public class GUI extends MouseAdapter {
     private JRadioButton yellowStartSelect;
     private JCheckBox allowUndoCheckBox;
     private Random rn = new Random();
-    
+
     /**
      * Creates a Connect Game GUI with a Connect4 Game.
      */
     public GUI() {
         try {
             UIManager.setLookAndFeel(
-                UIManager.getSystemLookAndFeelClassName() // Set the system look and feel.
+                    UIManager.getSystemLookAndFeelClassName() // Set the system look and feel.
             );
         } catch (Exception ignore) {
             // Just keeps the default look and Feel.
@@ -141,7 +145,7 @@ public class GUI extends MouseAdapter {
         panels = new JPanel[3]; // Initialize the panels needed.
         initStartScreen();
         initNewGameScreen();
-        
+
         frame.setSize(currentWidth, currentHeight);
         frame.setTitle(TITLE);
         ImageIcon icon = new ImageIcon("connect4/images/Icon.png");
@@ -156,7 +160,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * Plays the sound in the designated file if possible.
-     * @param soundFile  The audio file to play.
+     * 
+     * @param soundFile The audio file to play.
      */
     public void playSound(File soundFile) {
         if (soundFXToggle) {
@@ -173,19 +178,21 @@ public class GUI extends MouseAdapter {
 
     /**
      * Initializes the Game Screen.
-     * @param allowUndo  true if undoing moves is allowed, false if not. 
-     * This basically toggles the undo button.
+     * 
+     * @param allowUndo true if undoing moves is allowed, false if not.
+     *                  This basically toggles the undo button.
      */
     private synchronized void initGameScreen(boolean allowUndo) {
         final int panelNo = Screen.GAME_SCREEN.panelArrayPosition();
         // Initialize panel
         panels[panelNo] = new JPanel();
-        panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
+        panels[panelNo]
+                .setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
         JLabel gameTitle = new JLabel(TITLE); // Title
         gameTitle.setFont(TITLE_FONT);
-        gameTitle.setBounds(10,15,300,30);
+        gameTitle.setBounds(10, 15, 300, 30);
 
         JButton newGameButton = new JButton(NEW_GAME_STRING); // Button to quit and start a new game
         newGameButton.setBounds(ui.gameColumns() * DISK_SIZE + 30, 160, 150, 40);
@@ -197,9 +204,9 @@ public class GUI extends MouseAdapter {
         turnLabel.setFont(SUBTITLE_FONT);
 
         JLabel modeLabel = new JLabel( // Shows the current mode
-            ui.getMode() == GameMode.PLAYER_V_PLAYER? "Player vs. Player" : // PLAYER_V_PLAYER
-            ui.getMode() == GameMode.PLAYER_V_RANDOM? "Player vs. Random" : // PLAYER_V_RANDOM
-                                                      "Player vs. Computer" // PLAYER_V_COMPUTER
+                ui.getMode() == GameMode.PLAYER_V_PLAYER ? "Player vs. Player" : // PLAYER_V_PLAYER
+                        ui.getMode() == GameMode.PLAYER_V_RANDOM ? "Player vs. Random" : // PLAYER_V_RANDOM
+                                "Player vs. Computer" // PLAYER_V_COMPUTER
         );
         modeLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 115, 200, 40);
         modeLabel.setFont(LABEL_FONT);
@@ -220,7 +227,7 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help"); // Help Button
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF); // Button to toggle sound FX
+        JButton toggleSoundFXButton = new JButton(soundFXToggle ? FX_ON : FX_OFF); // Button to toggle sound FX
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -242,16 +249,17 @@ public class GUI extends MouseAdapter {
         final int panelNo = Screen.START_SCREEN.panelArrayPosition();
         // Initialize panel
         panels[panelNo] = new JPanel();
-        panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
+        panels[panelNo]
+                .setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
         JLabel startTitle = new JLabel(TITLE); // Title
         startTitle.setFont(new Font(FONT_NAME, Font.PLAIN, 60));
-        startTitle.setBounds((currentWidth/2) - 160,(currentHeight/2) - 80,300,50);
+        startTitle.setBounds((currentWidth / 2) - 160, (currentHeight / 2) - 80, 300, 50);
 
         JButton startButton = new JButton("Play"); // Button to start game
         startButton.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
-        startButton.setBounds((currentWidth/2) - 110,(currentHeight/2) + 10,200,40);
+        startButton.setBounds((currentWidth / 2) - 110, (currentHeight / 2) + 10, 200, 40);
         startButton.addActionListener(new StartGameButtonListener());
 
         panels[panelNo].add(startTitle);
@@ -266,12 +274,13 @@ public class GUI extends MouseAdapter {
         final int panelNo = Screen.NEW_GAME_SCREEN.panelArrayPosition();
         // Initialize panel
         panels[panelNo] = new JPanel();
-        panels[panelNo].setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
+        panels[panelNo]
+                .setBorder(BorderFactory.createEmptyBorder(currentWidth, currentHeight, currentWidth, currentHeight));
         panels[panelNo].setLayout(null);
 
         JLabel newGameTitle = new JLabel(NEW_GAME_STRING); // Title
         newGameTitle.setFont(TITLE_FONT);
-        newGameTitle.setBounds(10,15,600,30);
+        newGameTitle.setBounds(10, 15, 600, 30);
 
         int y = 90;
         JLabel gameModeSelectTitle = new JLabel("Game Mode:"); // Title for the game mode select buttons
@@ -283,12 +292,12 @@ public class GUI extends MouseAdapter {
         pvpSelect.setFont(LABEL_FONT);
         pvpSelect.setActionCommand("pvp");
         pvpSelect.addActionListener(new HideStartPlayerSelect());
-        JRadioButton pvrSelect = new JRadioButton("Player vs Random"); 
+        JRadioButton pvrSelect = new JRadioButton("Player vs Random");
         pvrSelect.setBounds(10, y + 80, 250, 40);
         pvrSelect.setFont(LABEL_FONT);
         pvrSelect.setActionCommand("pvr");
         pvrSelect.addActionListener(new ShowStartPlayerSelect());
-        JRadioButton pvcSelect = new JRadioButton("Player vs Computer"); 
+        JRadioButton pvcSelect = new JRadioButton("Player vs Computer");
         pvcSelect.setBounds(10, y + 120, 250, 40);
         pvcSelect.setFont(LABEL_FONT);
         pvcSelect.setActionCommand("pvc");
@@ -302,7 +311,7 @@ public class GUI extends MouseAdapter {
         startSelectTitle = new JLabel("Your Colour:"); // Title for the colour selection
         startSelectTitle.setBounds(265, y, 350, 40);
         startSelectTitle.setFont(SUBTITLE_FONT);
-        
+
         randomStartSelect = new JRadioButton("Random Colour", true); // Default
         randomStartSelect.setBounds(265, y + 40, 250, 40);
         randomStartSelect.setFont(LABEL_FONT);
@@ -325,7 +334,7 @@ public class GUI extends MouseAdapter {
         allowUndoCheckBox.setFont(LABEL_FONT);
         allowUndoCheckBox.setBounds(50, y + 175, 150, 40);
 
-        JButton startGameButton = new JButton("Start Game!"); // Start button
+        JButton startGameButton = new JButton("Start"); // Start button
         startGameButton.setBounds(120, y + 240, 200, 40);
         startGameButton.setFont(SUBTITLE_FONT);
         startGameButton.addActionListener(new StartNewGameButtonListener());
@@ -333,7 +342,7 @@ public class GUI extends MouseAdapter {
         JButton helpButton = new JButton("Help"); // Help Button
         helpButton.addActionListener(new HelpButtonListener());
         helpButton.setBounds(currentWidth - 100, 5, 80, 20);
-        JButton toggleSoundFXButton = new JButton(soundFXToggle? FX_ON : FX_OFF); // Button to toggle sound FX
+        JButton toggleSoundFXButton = new JButton(soundFXToggle ? FX_ON : FX_OFF); // Button to toggle sound FX
         toggleSoundFXButton.addActionListener(new ToggleSoundFXListener());
         toggleSoundFXButton.setBounds(currentWidth - 100, 25, 80, 20);
 
@@ -349,9 +358,11 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * Sets the given screen to the current screen, removing other screens(panels) from the frame.
+     * Sets the given screen to the current screen, removing other screens(panels)
+     * from the frame.
      * Note: This kills the current ComputerMove Thread.
-     * @param screen  The screen to set.
+     * 
+     * @param screen The screen to set.
      */
     private synchronized void setCurrentScreen(Screen newScreen) {
         if (currentScreen != null) {
@@ -365,7 +376,7 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * Initialize the board as an array of JLabels with ImageIcons (not yet added), 
+     * Initialize the board as an array of JLabels with ImageIcons (not yet added),
      * and add them to the main panel.
      */
     private synchronized void initBoard() {
@@ -379,10 +390,12 @@ public class GUI extends MouseAdapter {
             numberMarker.setFont(LABEL_FONT);
             panels[Screen.GAME_SCREEN.panelArrayPosition()].add(numberMarker);
             for (int j = 0; j < rows; j++) {
-                // Loops through each space on the GameBoard and adds a JLabel. 
-                // These will have an ImageIcon of the correct disk (after updateBoard() is called).
+                // Loops through each space on the GameBoard and adds a JLabel.
+                // These will have an ImageIcon of the correct disk (after updateBoard() is
+                // called).
                 board[i][j] = new JLabel();
-                board[i][j].setBounds(i * DISK_SIZE + 10,((rows) * DISK_SIZE - (j) * DISK_SIZE) + 15, DISK_SIZE, DISK_SIZE);
+                board[i][j].setBounds(i * DISK_SIZE + 10, ((rows) * DISK_SIZE - (j) * DISK_SIZE) + 15, DISK_SIZE,
+                        DISK_SIZE);
                 panels[Screen.GAME_SCREEN.panelArrayPosition()].add(board[i][j]);
             }
         }
@@ -453,7 +466,7 @@ public class GUI extends MouseAdapter {
             }
         }
     }
-    
+
     /**
      * Updates the Game Screen.
      */
@@ -477,7 +490,7 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * Switches to the new game screen. This method is somewhat redundant, 
+     * Switches to the new game screen. This method is somewhat redundant,
      * but makes it easier if some code needs to be executed every time a
      * new game is needed.
      */
@@ -486,8 +499,11 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * This returns a string that can be used anywhere that notifies the user that the game has ended. 
-     * @return  A string notifying the user that the game has ended, and any relevant information.
+     * This returns a string that can be used anywhere that notifies the user that
+     * the game has ended.
+     * 
+     * @return A string notifying the user that the game has ended, and any relevant
+     *         information.
      */
     private String getEndGameText() {
         switch (ui.getMode()) {
@@ -498,7 +514,8 @@ public class GUI extends MouseAdapter {
                     return "The game ended in a draw.";
                 }
 
-            case PLAYER_V_RANDOM: case PLAYER_V_COMPUTER:
+            case PLAYER_V_RANDOM:
+            case PLAYER_V_COMPUTER:
                 if (ui.getWinner() == ui.getPlayerDisk()) {
                     return ui.getGame().toWin() + " in a row! You win!";
                 } else if (ui.getWinner() == 3) {
@@ -512,31 +529,38 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * This method does any necessary checks and actions that need to be completed after a move is played.
+     * This method does any necessary checks and actions that need to be completed
+     * after a move is played.
+     * 
      * @return 1 if the game has ended and no action necessary,
      *         2 if a new game has started
-     *         0 if no action was taken. 
+     *         0 if no action was taken.
      */
     private synchronized int movePlayed() {
         if (ui.getWinner() != 0 && !ui.isDone()) {
             // The game just ended
             ui.finish();
-            final String[] options = {"OK", NEW_GAME_STRING, "Exit"};
+            final String[] options = { "OK", NEW_GAME_STRING, "Exit" };
             getEndGameText();
             int input = JOptionPane.showOptionDialog( // Game over option dialog
-                frame,
-                getEndGameText(),
-                "Game Over",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                DISK_ICONS[ui.getWinner()],
-                options,
-                options[1]
-            );
+                    frame,
+                    getEndGameText(),
+                    "Game Over",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    DISK_ICONS[ui.getWinner()],
+                    options,
+                    options[1]);
             switch (input) { // The input of the dialog
-                case 1: newGame(); return 2;
-                case 2: System.exit(0); break;
-                case 0: default: return 1;
+                case 1:
+                    newGame();
+                    return 2;
+                case 2:
+                    System.exit(0);
+                    break;
+                case 0:
+                default:
+                    return 1;
             }
         }
         // If the game just ended, nothing extra needs to be done.
@@ -545,7 +569,7 @@ public class GUI extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        if (currentScreen == Screen.GAME_SCREEN) { 
+        if (currentScreen == Screen.GAME_SCREEN) {
             if (computerMoveThread != null && computerMoveThread.isAlive()) {
                 // UI is currently handling a click
                 return;
@@ -558,25 +582,27 @@ public class GUI extends MouseAdapter {
                 updateGameScreen();
                 int action = movePlayed();
                 if (action == 0) {
-                    // Start the computer move thread. This will end immediately 
+                    // Start the computer move thread. This will end immediately
                     // if it is not the computer's turn, so this is safe.
                     computerMoveThread = new ComputerMove();
-                    computerMoveThread.start(); 
+                    computerMoveThread.start();
                 }
             }
-            
+
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        // This method manages the shading of the space that the user will potentialy play on, if they 
-        // click right now. See also the end of the ComputerMove Thread for the other code that affects this.
+        // This method manages the shading of the space that the user will potentialy
+        // play on, if they
+        // click right now. See also the end of the ComputerMove Thread for the other
+        // code that affects this.
         if (ui != null && currentScreen == Screen.GAME_SCREEN) { // Make sure we're on the game screen
-            if (!ui.isPlayersTurn() || ui.isDone() || 
-                (computerMoveThread != null && computerMoveThread.isAlive() && computerMoveThread.isInterrupted())
-            ) { 
-                currentShadedColumn = -1; // If it's not the player's turn, or the game is over, or the 
+            if (!ui.isPlayersTurn() || ui.isDone() ||
+                    (computerMoveThread != null && computerMoveThread.isAlive()
+                            && computerMoveThread.isInterrupted())) {
+                currentShadedColumn = -1; // If it's not the player's turn, or the game is over, or the
                                           // computer move thread is currently waiting to stop, do nothing.
                 return;
             }
@@ -584,59 +610,64 @@ public class GUI extends MouseAdapter {
             if (mouseColumn == currentShadedColumn) {
                 return; // If the column is already shaded, do nothing
             }
-            if (currentShadedColumn != -1 && ui.getGameBoard().getNextDiskIndices()[currentShadedColumn] < ui.gameRows()) {
+            if (currentShadedColumn != -1
+                    && ui.getGameBoard().getNextDiskIndices()[currentShadedColumn] < ui.gameRows()) {
                 board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
-                    .setIcon(DISK_ICONS[GameBoard.BLANK]); // Blank out the previous column the mouse was in
+                        .setIcon(DISK_ICONS[GameBoard.BLANK]); // Blank out the previous column the mouse was in
             }
             currentShadedColumn = mouseColumn;
             if (currentShadedColumn != -1) {
                 board[currentShadedColumn][ui.getGameBoard().getNextDiskIndices()[currentShadedColumn]]
-                    .setIcon(DISK_ICONS[ui.getGame().currentTurn() + 3]); // Shade the current column the mouse is in
+                        .setIcon(DISK_ICONS[ui.getGame().currentTurn() + 3]); // Shade the current column the mouse is
+                                                                              // in
             }
-        } 
+        }
     }
 
     /**
-     * The purpose of this private class is to be able to have the UI handling 
-     * click events in a separate thread to avoid unresponsiveness 
-     * when calculating the computer move. 
+     * The purpose of this private class is to be able to have the UI handling
+     * click events in a separate thread to avoid unresponsiveness
+     * when calculating the computer move.
      */
     private class ComputerMove extends Thread {
-        @Override 
+        @Override
         public void run() {
-            // This method will only play the computer's move if it is it's turn, so we can call it here safely.
-            boolean isMovePlayed = ui.computerTurn(); 
-            if (isMovePlayed && !Thread.interrupted()) { 
+            // This method will only play the computer's move if it is it's turn, so we can
+            // call it here safely.
+            boolean isMovePlayed = ui.computerTurn();
+            if (isMovePlayed && !Thread.interrupted()) {
                 playSound(MOVE_PLAYED_SOUND);
                 updateGameScreen();
                 movePlayed();
             }
             // Trigger a mouse event, so that the column disk shading works.
             // The only relevant fields in the mouse event are the x and y currently.
-            // (currently only the x is used, in fact.) 
+            // (currently only the x is used, in fact.)
             currentShadedColumn = -1;
-            mouseMoved(new MouseEvent(frame, 0, 0, 0, 
-                MouseInfo.getPointerInfo().getLocation().x, 
-                MouseInfo.getPointerInfo().getLocation().y, 
-                1, false
-            ));
+            mouseMoved(new MouseEvent(frame, 0, 0, 0,
+                    MouseInfo.getPointerInfo().getLocation().x,
+                    MouseInfo.getPointerInfo().getLocation().y,
+                    1, false));
         }
     }
 
     /**
      * Game Screen:
-     * <p>ActionListener for the Undo Button. Undoes the last move/s.
+     * <p>
+     * ActionListener for the Undo Button. Undoes the last move/s.
      * If the mode is player v player, undoes the last move.
-     * If the mode is player v random or computer, undoes until the time it was the player's turn and 
-     * interrupts the computerMoveThread if active, making sure it ends properly before the GUI updates.
+     * If the mode is player v random or computer, undoes until the time it was the
+     * player's turn and
+     * interrupts the computerMoveThread if active, making sure it ends properly
+     * before the GUI updates.
      */
     private class UndoMoveButtonListener implements ActionListener {
 
         private Timer undoWarningTimer = new Timer(1000, new ActionListener() {
             @Override
-                public void actionPerformed(ActionEvent e) {
-                    undoWarning.setText("");
-                }
+            public void actionPerformed(ActionEvent e) {
+                undoWarning.setText("");
+            }
         });
 
         public UndoMoveButtonListener() {
@@ -690,7 +721,7 @@ public class GUI extends MouseAdapter {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (ui.isDone()) { 
+            if (ui.isDone()) {
                 // Do nothing if the game is over
                 return;
             }
@@ -706,7 +737,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * Game Screen:
-     * <p>Action Listener for the New Game Button. Asks the user if they 
+     * <p>
+     * Action Listener for the New Game Button. Asks the user if they
      * want to start a new game, and does so if OK.
      */
     private class GameScreenNewGameButtonListener implements ActionListener {
@@ -721,12 +753,11 @@ public class GUI extends MouseAdapter {
                 computerMoveThread.interrupt();
             }
             int newGameConfirmation = JOptionPane.showConfirmDialog( // Confirm the user wants to end the current game
-                frame,
-                "Are you sure? The contents the the current game will be discarded!",
-                "Confirm New Game",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE
-            );
+                    frame,
+                    "Are you sure? The contents the the current game will be discarded!",
+                    "Confirm New Game",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
             if (newGameConfirmation == JOptionPane.OK_OPTION) {
                 newGame();
             } else {
@@ -734,7 +765,7 @@ public class GUI extends MouseAdapter {
                 turnLabel.setText(turnLabelText);
                 if (interruptedComputerMove) {
                     computerMoveThread = new ComputerMove();
-                    computerMoveThread.start(); 
+                    computerMoveThread.start();
                 }
             }
         }
@@ -742,7 +773,9 @@ public class GUI extends MouseAdapter {
 
     /**
      * Start Screen:
-     * <p>Takes the user to the New Game Screen. There is no way to return to the start screen.
+     * <p>
+     * Takes the user to the New Game Screen. There is no way to return to the start
+     * screen.
      */
     private class StartGameButtonListener implements ActionListener {
         @Override
@@ -753,8 +786,10 @@ public class GUI extends MouseAdapter {
 
     /**
      * New Game Screen:
-     * <p>Starts a new game (ui) and initializes the game screen based on 
-     * the current selections in the gameModeSelect and startPlayerSelect button groups.
+     * <p>
+     * Starts a new game (ui) and initializes the game screen based on
+     * the current selections in the gameModeSelect and startPlayerSelect button
+     * groups.
      */
     private class StartNewGameButtonListener implements ActionListener {
         @Override
@@ -764,17 +799,31 @@ public class GUI extends MouseAdapter {
 
             switch (gameModeSelect.getSelection().getActionCommand()) {
                 // Read the game mode selection
-                case "pvp": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; break;
-                case "pvr": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_RANDOM; break;
-                case "pvc": ngGameMode = ConnectGameUI.GameMode.PLAYER_V_COMPUTER; break;
-                default: ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; // Should never happen.
+                case "pvp":
+                    ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER;
+                    break;
+                case "pvr":
+                    ngGameMode = ConnectGameUI.GameMode.PLAYER_V_RANDOM;
+                    break;
+                case "pvc":
+                    ngGameMode = ConnectGameUI.GameMode.PLAYER_V_COMPUTER;
+                    break;
+                default:
+                    ngGameMode = ConnectGameUI.GameMode.PLAYER_V_PLAYER; // Should never happen.
             }
             switch (startPlayerSelect.getSelection().getActionCommand()) {
                 // Read the starting player selection
-                case "random": ngStartPlayer = rn.nextInt(1, 3); break;
-                case "red": ngStartPlayer = GameBoard.RED; break;
-                case "yellow": ngStartPlayer = GameBoard.YELLOW; break;
-                default: ngStartPlayer = 1; // Should never happen.
+                case "random":
+                    ngStartPlayer = rn.nextInt(1, 3);
+                    break;
+                case "red":
+                    ngStartPlayer = GameBoard.RED;
+                    break;
+                case "yellow":
+                    ngStartPlayer = GameBoard.YELLOW;
+                    break;
+                default:
+                    ngStartPlayer = 1; // Should never happen.
             }
             ui = new ConnectGameUI(ngGameMode, ngStartPlayer);
             initGameScreen(allowUndoCheckBox.isSelected()); // Read the undo move? checkbox and init game screen
@@ -788,7 +837,8 @@ public class GUI extends MouseAdapter {
 
     /**
      * New Game Screen:
-     * <p>An Action Listener for hiding the options to choose the starting player 
+     * <p>
+     * An Action Listener for hiding the options to choose the starting player
      * when plaver v player is selected.
      */
     private class HideStartPlayerSelect implements ActionListener {
@@ -805,7 +855,7 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * An Action Listener for showing the options to choose the 
+     * An Action Listener for showing the options to choose the
      * starting player when player v player is deselected.
      */
     private class ShowStartPlayerSelect implements ActionListener {
@@ -822,7 +872,7 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * An Action Listener for the help button. 
+     * An Action Listener for the help button.
      * Brings up a JOptionPane that tells you how to play connect 4.
      */
     private class HelpButtonListener implements ActionListener {
@@ -830,16 +880,15 @@ public class GUI extends MouseAdapter {
         public void actionPerformed(ActionEvent e) {
             playSound(CLICK_SOUND_1);
             JOptionPane.showMessageDialog(
-                frame,
-                """
-                    The aim of the game is to get 4 of your tokens in a row, 
-                    while stopping your opponent from doing the same. When you
-                    place a token in a column, it falls down to the next available
-                    space in that column. 
-                """,
-                "About",
-                JOptionPane.INFORMATION_MESSAGE
-            );
+                    frame,
+                    """
+                                The aim of the game is to get 4 of your tokens in a row,
+                                while stopping your opponent from doing the same. When you
+                                place a token in a column, it falls down to the next available
+                                space in that column.
+                            """,
+                    "About",
+                    JOptionPane.INFORMATION_MESSAGE);
             playSound(CLICK_SOUND_1);
         }
     }
@@ -862,8 +911,9 @@ public class GUI extends MouseAdapter {
     }
 
     /**
-     * This is an action listener for the thinking label, so the dots flash, therefore making it 
-     * look active during the thinking. 
+     * This is an action listener for the thinking label, so the dots flash,
+     * therefore making it
+     * look active during the thinking.
      */
     private class ThinkingUpdater implements ActionListener {
         @Override
