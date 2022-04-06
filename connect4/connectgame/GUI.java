@@ -546,7 +546,7 @@ public class GUI extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
         if (currentScreen == Screen.GAME_SCREEN) { 
-            if (computerMoveThread != null && (!computerMoveThread.isInterrupted() && computerMoveThread.isAlive())) {
+            if (computerMoveThread != null && computerMoveThread.isAlive()) {
                 // UI is currently handling a click
                 return;
             }
@@ -554,14 +554,17 @@ public class GUI extends MouseAdapter {
                 // A move was played
                 playSound(MOVE_PLAYED_SOUND);
             }
-            updateGameScreen();
-            int action = movePlayed();
-            if (action == 0) {
-                // Start the computer move thread. This will end immediately 
-                // if it is not the computer's turn, so this is safe.
-                computerMoveThread = new ComputerMove();
-                computerMoveThread.start(); 
+            if (computerMoveThread == null || !computerMoveThread.isAlive()) {
+                updateGameScreen();
+                int action = movePlayed();
+                if (action == 0) {
+                    // Start the computer move thread. This will end immediately 
+                    // if it is not the computer's turn, so this is safe.
+                    computerMoveThread = new ComputerMove();
+                    computerMoveThread.start(); 
+                }
             }
+            
         }
     }
 
@@ -776,8 +779,8 @@ public class GUI extends MouseAdapter {
             ui = new ConnectGameUI(ngGameMode, ngStartPlayer);
             initGameScreen(allowUndoCheckBox.isSelected()); // Read the undo move? checkbox and init game screen
             if (!ui.isPlayersTurn()) {
-                Thread compMove = new ComputerMove();
-                compMove.start();
+                computerMoveThread = new ComputerMove();
+                computerMoveThread.start();
             }
             setCurrentScreen(Screen.GAME_SCREEN);
         }

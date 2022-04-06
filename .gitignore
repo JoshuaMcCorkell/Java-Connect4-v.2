@@ -79,6 +79,9 @@ nb-configuration.xml
 .code-workspace
 Compiled/
 connect4-runtime/
+launch4j.log
+config.xml
+*.exe
 ##############################
 ## OS X
 ##############################
