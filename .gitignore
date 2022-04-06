@@ -78,6 +78,7 @@ nb-configuration.xml
 .vscode/
 .code-workspace
 Compiled/
+connect4-runtime/
 ##############################
 ## OS X
 ##############################
