@@ -226,7 +226,7 @@ public class Connect4 implements ConnectGame {
             current.popDisk(columnMove);
         }
         long endTime = System.nanoTime();
-        if (!Thread.interrupted()) { // Make sure the thread is still meant to be active before playing...
+        if (!Thread.currentThread().isInterrupted()) { // Make sure the thread is still meant to be active before playing...
             compPlayStack.push(new Play(currentTurn, bestPlay)); // This is so the depth can be backtracked
             depthStack.push(depth); // after a move is undone.
             play(bestPlay);

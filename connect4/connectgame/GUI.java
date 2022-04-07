@@ -72,60 +72,60 @@ public class GUI extends MouseAdapter {
     }
 
     // Important constants for rendering, describing disks etc.
-    private static final int DISK_SIZE = 50;
-    private static final ImageIcon[] DISK_ICONS = {
-            new ImageIcon("connect4/images/Blank.png"), // Blank spot (0)
+    public static final int DISK_SIZE = 50;
+    protected static final ImageIcon[] DISK_ICONS = new ImageIcon[] {
+            new ImageIcon("connect4/images/Blank.png"), // Blank spot
             new ImageIcon("connect4/images/Red.png"), // 'Red' (1)
             new ImageIcon("connect4/images/Yellow.png"), // 'Yellow' (2)
             new ImageIcon("connect4/images/Blank.png"), // This is the icon to display in case of a draw
             new ImageIcon("connect4/images/Red Ring.png"), // The red icon for potential moves
             new ImageIcon("connect4/images/Yellow Ring.png") // The yellow icon for potential moves
     };
-    private static final String[] PLAYER = { "Error", "Red", "Yellow" };
-    private static final Color[] PLAYER_COLORS = { Color.DARK_GRAY, Color.RED, Color.ORANGE };
-    private static final String TITLE = "Connect 4";
+    protected static final String[] PLAYER = { "Error", "Red", "Yellow" };
+    protected static final Color[] PLAYER_COLORS = { Color.DARK_GRAY, Color.RED, Color.ORANGE };
+    protected static final String TITLE = "Connect 4";
 
     // Fonts
-    private static final String FONT_NAME = "Arial Bold";
-    private static final Font TITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 40);
-    private static final Font LABEL_FONT = new Font(FONT_NAME, Font.PLAIN, 20);
-    private static final Font SUBTITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 30);
-    private static final String NEW_GAME_STRING = "New Game";
+    protected static final String FONT_NAME = "Arial Bold";
+    protected static final Font TITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 40);
+    protected static final Font LABEL_FONT = new Font(FONT_NAME, Font.PLAIN, 20);
+    protected static final Font SUBTITLE_FONT = new Font(FONT_NAME, Font.PLAIN, 30);
+    protected static final String NEW_GAME_STRING = "New Game";
 
     // Sounds
-    private static final File CLICK_SOUND_1 = new File("connect4/sounds/Click Sound 1.wav");
-    private static final File MOVE_PLAYED_SOUND = new File("connect4/sounds/Move Played Sound.wav");
-    private static final String FX_ON = "FX: On";
-    private static final String FX_OFF = "FX: Off";
+    protected static final File CLICK_SOUND_1 = new File("connect4/sounds/Click Sound 1.wav");
+    protected static final File MOVE_PLAYED_SOUND = new File("connect4/sounds/Move Played Sound.wav");
+    protected static final String FX_ON = "FX: On";
+    protected static final String FX_OFF = "FX: Off";
 
     // GUI level fields.
-    private ConnectGameUI ui;
-    private Screen currentScreen;
-    private ComputerMove computerMoveThread;
-    private int currentWidth;
-    private int currentHeight;
-    private boolean soundFXToggle = true;
-    private JFrame frame;
-    private JPanel[] panels;
-    private Timer thinkingFlicker;
+    protected ConnectGameUI ui;
+    protected Screen currentScreen;
+    protected ComputerMove computerMoveThread;
+    protected int currentWidth;
+    protected int currentHeight;
+    protected boolean soundFXToggle = true;
+    protected JFrame frame;
+    protected JPanel[] panels;
+    protected Timer thinkingFlicker;
 
     // Components that need to be accessed by multiple methods:
     // Game Screen
-    private JLabel[][] board;
-    private JLabel turnLabel;
-    private int currentShadedColumn;
-    private JLabel undoWarning;
-    private static final String THINKING1 = "Thinking...";
-    private static final String THINKING2 = "Thinking..";
+    protected JLabel[][] board;
+    protected JLabel turnLabel;
+    protected int currentShadedColumn;
+    protected JLabel undoWarning;
+    protected static final String THINKING1 = "Thinking...";
+    protected static final String THINKING2 = "Thinking..";
     // New Game Screen
-    private ButtonGroup gameModeSelect;
-    private ButtonGroup startPlayerSelect;
-    private JLabel startSelectTitle;
-    private JRadioButton randomStartSelect;
-    private JRadioButton redStartSelect;
-    private JRadioButton yellowStartSelect;
-    private JCheckBox allowUndoCheckBox;
-    private Random rn = new Random();
+    protected ButtonGroup gameModeSelect;
+    protected ButtonGroup startPlayerSelect;
+    protected JLabel startSelectTitle;
+    protected JRadioButton randomStartSelect;
+    protected JRadioButton redStartSelect;
+    protected JRadioButton yellowStartSelect;
+    protected JCheckBox allowUndoCheckBox;
+    protected Random rn = new Random();
 
     /**
      * Creates a Connect Game GUI with a Connect4 Game.
@@ -203,11 +203,21 @@ public class GUI extends MouseAdapter {
         turnLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 65, 350, 40);
         turnLabel.setFont(SUBTITLE_FONT);
 
-        JLabel modeLabel = new JLabel( // Shows the current mode
-                ui.getMode() == GameMode.PLAYER_V_PLAYER ? "Player vs. Player" : // PLAYER_V_PLAYER
-                        ui.getMode() == GameMode.PLAYER_V_RANDOM ? "Player vs. Random" : // PLAYER_V_RANDOM
-                                "Player vs. Computer" // PLAYER_V_COMPUTER
-        );
+        String modeString;
+        switch (ui.getMode()) {
+            case PLAYER_V_PLAYER:
+                modeString = "Player vs. Player";
+                break;
+            case PLAYER_V_RANDOM:
+                modeString = "Player vs. Random";
+                break;
+            case PLAYER_V_COMPUTER:
+                modeString = "Player vs. Computer";
+                break;
+            default:
+                modeString = "Error Displaying Mode";
+        }
+        JLabel modeLabel = new JLabel(modeString);
         modeLabel.setBounds(ui.gameColumns() * DISK_SIZE + 30, 115, 200, 40);
         modeLabel.setFont(LABEL_FONT);
 
@@ -635,7 +645,7 @@ public class GUI extends MouseAdapter {
             // This method will only play the computer's move if it is it's turn, so we can
             // call it here safely.
             boolean isMovePlayed = ui.computerTurn();
-            if (isMovePlayed && !Thread.interrupted()) {
+            if (isMovePlayed && !Thread.currentThread().isInterrupted()) {
                 playSound(MOVE_PLAYED_SOUND);
                 updateGameScreen();
                 movePlayed();
@@ -685,19 +695,21 @@ public class GUI extends MouseAdapter {
         /**
          * Undoes a move in player v player mode.
          */
-        private void undoPlayerVPlayer() {
+        private boolean undoPlayerVPlayer() {
             // If the mode is player v player, undo 1 move
             if (!ui.getGame().getPlayStack().isEmpty()) {
                 ui.undoLast();
+                return true;
             } else {
                 doUndoWarning();
+                return false;
             }
         }
 
         /**
          * Undoes a move in player v computer or random mode.
          */
-        private void undoPlayerVComputer() {
+        private boolean undoPlayerVComputer() {
             if (ui.isPlayersTurn()) {
                 if (ui.getGame().getPlayStack().size() > 1) {
                     // If there are at least 2 moves to undo, it is player's turn
@@ -706,17 +718,28 @@ public class GUI extends MouseAdapter {
                     ui.undoLast();
                 } else {
                     doUndoWarning();
+                    return false;
                 }
             } else {
-                // Interrupts the computer thread so the computer won't play it's move.
-                computerMoveThread.interrupt();
-                ui.undoLast();
-                try {
-                    computerMoveThread.join();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                if (ui.getGame().getPlayStack().size() > 0) {
+                    // Interrupts the computer thread so the computer won't play it's move.
+                    computerMoveThread.interrupt();
+                    ui.undoLast();
+                    try {
+                        computerMoveThread.join();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return false;
+                    }
+                    if (!ui.isPlayersTurn()) {
+                        ui.undoLast();
+                    }
+                } else {
+                    doUndoWarning();
+                    return false;
                 }
             }
+            return true;
         }
 
         @Override
@@ -725,13 +748,16 @@ public class GUI extends MouseAdapter {
                 // Do nothing if the game is over
                 return;
             }
+            boolean success;
             if (ui.getMode() == GameMode.PLAYER_V_PLAYER) {
-                undoPlayerVPlayer();
+                success = undoPlayerVPlayer();
             } else {
-                undoPlayerVComputer();
+                success = undoPlayerVComputer();
             }
-            playSound(CLICK_SOUND_1);
-            updateGameScreen();
+            if (success) {
+                playSound(CLICK_SOUND_1);
+                updateGameScreen();
+            }
         }
     }
 
@@ -780,7 +806,7 @@ public class GUI extends MouseAdapter {
     private class StartGameButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            setCurrentScreen(Screen.NEW_GAME_SCREEN);
+            newGame();
         }
     }
 
