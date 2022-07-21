@@ -55,7 +55,7 @@ public class GUI extends MouseAdapter {
      *           an actual panel, instead of just an array position. This would be a
      *           LOT easier to work with.
      */
-    public enum Screen {
+    enum Screen {
         GAME_SCREEN(0),
         START_SCREEN(1),
         NEW_GAME_SCREEN(2);
@@ -66,7 +66,7 @@ public class GUI extends MouseAdapter {
             this.panelArrayPosition = panelArrayPosition;
         }
 
-        public int panelArrayPosition() {
+        int panelArrayPosition() {
             return this.panelArrayPosition;
         }
     }
