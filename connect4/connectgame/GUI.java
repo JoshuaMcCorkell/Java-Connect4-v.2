@@ -36,7 +36,7 @@ import connectgame.engine.GameBoard;
 
 /**
  * <h4>GUI
- * <h4>
+ * </h4>
  * This is a class that creates and runs a Connect 4 GUI. It is possible to
  * adapt this,
  * however, to another ConnectGame, although there are some things that would
